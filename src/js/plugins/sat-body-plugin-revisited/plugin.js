@@ -11,7 +11,11 @@ export default class SatBodyPlugin extends Phaser.Plugin {
 
   init(options) {
     // TODO: use options to configure the world
+    // World: chưa các thông tin object dưới dạng quan tâm về mặt vật lý để kiểm tra va chạm 
+    // Trong code này sử dụng r-tree + sat để kiểm tra va chạm 
     this.world = new World(this.game, this);
+    // Factory: là factory sinh ra các đối tượng cần thiết: 
+    // từ physic body đến game object mà World có thể kiểm tra va chạm
     this.factory = new Factory(this.world);
 
     // TODO: Finish injecting into the Physics stucture. We don't necessarily need to hook into it,

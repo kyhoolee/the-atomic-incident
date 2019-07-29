@@ -35,6 +35,7 @@ export default class World {
     this.gravity = new P(0, 0);
 
     this.maxEntries = 16;
+    // RBush — a high-performance JavaScript R-tree-based 2D spatial index for points and rectangles
     this.tree = new rbush(this.maxEntries, [".left", ".top", ".right", ".bottom"]);
     this.staticTree = new rbush(this.maxEntries, [".left", ".top", ".right", ".bottom"]);
 
@@ -50,11 +51,11 @@ export default class World {
   }
 
   // NOOP methods, to be implemented later:
-  enable() {}
-  disable() {}
-  pause() {}
-  resume() {}
-  addOverlap() {}
+  enable() { }
+  disable() { }
+  pause() { }
+  resume() { }
+  addOverlap() { }
 
   add(body) {
     if (body.bodyType === BODY_TYPES.STATIC) this.staticBodies.add(body);

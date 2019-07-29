@@ -1,16 +1,17 @@
 import logger from "./helpers/logger";
 
+// Class dùng để log lại các thông tin phân tích ván chơi game - để debug hoặc phân tích số liệu 
 export default function initalize(useMock) {
   // Mock analytics on localhost & real analytics on server
   if (useMock) {
     logger.log("Mock Google analytics installed");
     window.ga = (...args) => logger.log("GA:", ...args.map(arg => JSON.stringify(arg, null, 2)));
   } else {
-    (function(i, s, o, g, r, a, m) {
+    (function (i, s, o, g, r, a, m) {
       i["GoogleAnalyticsObject"] = r;
       (i[r] =
         i[r] ||
-        function() {
+        function () {
           (i[r].q = i[r].q || []).push(arguments);
         }),
         (i[r].l = 1 * new Date());

@@ -33,44 +33,136 @@ import ImageBar from "../game-objects/hud/image-bar";
 import WaveHud from "../game-objects/hud/wave";
 import HudMessageDisplay from "../game-objects/hud/hud-message-display";
 
-export default class PlayState extends Phaser.State {
-  create() {
-    registerGameStart();
 
+/*
+This is a base State class which can be extended if you are creating your own game. 
+It provides quick access to common functions such as the camera, cache, input, match, sound and more.
+
+1 game-state của phaser cần implement 3 ham chính 
+- Create - khi khởi tạo state thì tạo ra những thông tin gì 
+- Update - mỗi lần game loop được gọi chạy thì ở game-state này sẽ xử lý các điều kiện logic + biến đổi thông tin 
+- Shutdown - khi game-state này được shutdown thì cần dọn dẹp - cập nhật lại những thông tin gì để kết thúc game-state 
+*/
+// export default class PlayState --> dùng để khai báo cho bên script khác có thể import 
+export default class PlayState extends Phaser.State {
+
+
+  create() {
+    // 1. Đăng kí việc log thông tin analytics 
+    registerGameStart();
+    // 2. Gọi mobx-gameStore đóng trạng thái mở menu lại 
     gameStore.setMenuState(MENU_STATE_NAMES.CLOSED);
 
-    // Shorthands
+    // Shorthands - ngắn gọn cho 1 số biến quan trọng - game và các biến global của game 
     const game = this.game;
     const globals = game.globals;
 
     // Groups for z-index sorting and for collisions
     const groups = {
+      // this.world 
+      /**
+       * this.world là game-world của game-state này - chứa tất cả các object tồn tại trong game 
+        * A reference to the game world. 
+        * All objects live in the Game World and its size is not bound by the display resolution.
+        */
+      // 1. game: đây là group chứa các đối tượng chính của game  
       game: game.add.group(this.world, "game"),
+      // 2. gameOverlay: Đây là các đối tượng phủ lên layer trên 
       gameOverlay: game.add.group(this.world, "game-overlay"),
+      // 3. hud: là các thông tin dạng như thanh health, đạn, score 
       hud: game.add.group(this.world, "hud")
     };
+
+
+    // Các thành phần hud thì nằm ở vị trí cố định trên màn hình
     groups.hud.fixedToCamera = true;
+    /**
+        * A Group is a container for display objects that allows for fast pooling, recycling and collision checks.
+        * 
+        * @param parent The parent Group or DisplayObjectContainer that will hold this group, if any. 
+        * If set to null the Group won't be added to the display list. 
+        * If undefined it will be added to World by default.
+        * @param name A name for this Group. 
+        * Not used internally but useful for debugging. 
+        * - Default: 'group'
+        * @param addToStage If set to true this Group will be added directly 
+        * to the Game.Stage instead of Game.World.
+        * @param enableBody If true all Sprites created with 
+        * `Group.create` or `Group.createMulitple` will have a physics body created on them. 
+        * Change the body type with physicsBodyType.
+        * @param physicsBodyType If enableBody is true this is the type of physics body 
+        * that is created on new Sprites. 
+        * Phaser.Physics.ARCADE, Phaser.Physics.P2, Phaser.Physics.NINJA, etc.
+        * @return The newly created Group.
+    */
+    // Tạo ra các thành phần con của group game 
+    // 1. Background 
     groups.background = game.add.group(groups.game, "background");
+    // 2. Midground
     groups.midground = game.add.group(groups.game, "midground");
+    // 3. Foreground 
     groups.foreground = game.add.group(groups.game, "foreground");
+
+    // Trong midground thì có các pickups-item của game 
     groups.pickups = game.add.group(groups.midground, "pickups");
+    // Trong midground thì có enimies 
     groups.enemies = new EnemyGroup(game, groups.midground);
+    // Trong midground có các các group của các object không cần check colliding 
     groups.nonCollidingGroup = game.add.group(groups.midground, "non-colliding");
+
+    // Đưa biến group vào trong thông tin globals 
     globals.groups = groups;
 
     // Plugins
+    /*
+    class Plugin implements IStateCycle {
+
+
+      **
+      * This is a base Plugin template to use for any Phaser plugin development.
+      * 
+      * ##### Callbacks
+      * 
+      * add  | active      | visible     | remove
+      * -----|-------------|-------------|--------
+      * init |             |             |
+      *      | preUpdate*  |             |
+      *      | update*     | render*     |
+      *      | postUpdate* | postRender* |
+      *      |             |             | destroy
+      * 
+      * Update and render calls are repeated (*).
+      * 
+      * @param game A reference to the currently running game.
+      * @param parent The object that owns this plugin, usually Phaser.PluginManager.
+      *
+      constructor(game: Phaser.Game, parent: Phaser.PluginManager);
+    */
     global.plugins = global.plugins !== undefined ? global.plugins : {};
+
+    /*
+        **
+    * The Plugin Manager is responsible for the loading, running and unloading of Phaser Plugins.
+    *
+   class PluginManager implements IStateCycle {
+    */
+    // Plugins.1. Plugins để kiemr tra các đối tượng trong game va chạm   
     globals.plugins.satBody = game.plugins.add(SatBodyPlugin);
+    // Plugins.2. Plugins để tạo ra các effect trong game    
     globals.plugins.effects = game.plugins.add(EffectsPlugin);
 
     // Level manager
     const mapName = globals.tilemapNames[0];
+    // map-manager trong game thuộc về nhóm background và foreground
+    // không liên quan tới midground là các game-object chính 
     const mapManager = new MapManager(game, mapName, groups.background, groups.foreground);
     globals.mapManager = mapManager;
 
     // Lighting plugin - needs to be set up after level manager
+    // Vì lightning-plugin dùng để phủ 1 lớp overlay lên trên game thể hiện sáng tối 
+    // nên cần phải có tham chiếu tới dữ liệu mapManager được gán trước đó nêú không thì không hoạt động được 
     globals.plugins.lighting = game.plugins.add(LightingPlugin, {
-      parent: groups.foreground,
+      parent: groups.foreground, // thuộc về lớp foreground của trong nhóm game 
       walls: mapManager.walls,
       shouldUpdateImageData: false,
       shadowOpacity: 1,
