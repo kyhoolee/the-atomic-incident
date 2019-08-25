@@ -155,12 +155,16 @@ export default class PlayState extends Phaser.State {
     const mapName = globals.tilemapNames[0];
     // map-manager trong game thuộc về nhóm background và foreground
     // không liên quan tới midground là các game-object chính 
+
+    // Manager.1. Map-manager - quản lý bản đồ trong game 
     const mapManager = new MapManager(game, mapName, groups.background, groups.foreground);
     globals.mapManager = mapManager;
 
     // Lighting plugin - needs to be set up after level manager
     // Vì lightning-plugin dùng để phủ 1 lớp overlay lên trên game thể hiện sáng tối 
     // nên cần phải có tham chiếu tới dữ liệu mapManager được gán trước đó nêú không thì không hoạt động được 
+
+    // Plugins.3. Plugins để tạo ra hiệu ứng ánh sáng + bóng che trong game - dựa trên map-tile
     globals.plugins.lighting = game.plugins.add(LightingPlugin, {
       parent: groups.foreground, // thuộc về lớp foreground của trong nhóm game 
       walls: mapManager.walls,
@@ -171,9 +175,11 @@ export default class PlayState extends Phaser.State {
     this.lighting = globals.plugins.lighting;
 
     // Sound manager
+    // Manager.2. Sound-manager - quản lý âm thanh trong game 
     globals.soundManager = new SoundEffectManager(this.game);
 
     // Difficulty
+    // Manager.3. Difficulty-manager - quản lý điều chỉnh độ khó trong game 
     globals.difficultyModifier = new DifficultyModifier();
 
     // Physics
@@ -183,37 +189,53 @@ export default class PlayState extends Phaser.State {
     globals.postProcessor = new PostProcessor(game, globals.groups.game);
     globals.audioProcessor = new AudioProcessor(game);
 
-    // Player
+    // Player - đôi tượng người chơi - khởi tạo các thông tin cần thiết về đối tượng người chơi
     // Setup a new player, and attach it to the global variabls object.
+    // player.1. vị trí của player 
     const spawnObjects = mapManager.tilemap.objects["player-spawn"] || [];
     const spawnPoint =
       spawnObjects.length > 0
         ? { x: spawnObjects[0].x, y: spawnObjects[0].y }
         : { x: this.world.width / 2, y: this.world.height / 2 };
+    // player.2. khởi tạo đối tượng Player với game + ví trí + group:foreground
     const player = new Player(game, spawnPoint.x, spawnPoint.y, groups.foreground);
     globals.player = player;
 
+    // game-world: giới hạn vào kích cỡ của bản đồ - tilemap
     game.world.setBounds(0, 0, mapManager.tilemap.widthInPixels, mapManager.tilemap.heightInPixels);
+    // game-camera: gắn theo di chuyển của player 
     game.camera.follow(player);
 
     // Waves of pickups and enemies
+    // Khởi tạo các loại Spawner khác nhau: nhặt đồ - pickup, địch - enemy, vũ khí - weapon 
     new PickupSpawner(game);
     const enemySpawner = new EnemySpawner(game, player);
     this.enemySpawner = enemySpawner;
     const weaponSpawner = new WeaponSpawner(game, groups.pickups, player, mapManager);
 
     // HUD
+    // Khởi tạo các thành phần thông tin hiển thị lúc chơi - nằm ngoài các đối tượng hoạt động của màn game 
     const hudMessageDisplay = new HudMessageDisplay(game, groups.hud);
+
+    // Khởi tạo Radar ??? là cái gì - chưa rõ mục đích logic 
     new Radar(game, groups.foreground, player, this.game.globals.groups.enemies, weaponSpawner);
+    // Khởi tạo Combo ??? - chưa rõ mục đích logic 
     const combo = new Combo(game, groups.hud, player, globals.groups.enemies);
     combo.position.set(this.game.width - 5, 32);
+    // Khởi tạo Score ??? - chưa rõ mục đích logic 
     const score = new Score(game, groups.hud, globals.groups.enemies, combo, hudMessageDisplay);
     score.position.set(this.game.width - 5, 5);
+    // Khởi tạo Amo ??? - chưa rõ mục đích logic 
     const ammo = new Ammo(game, groups.hud, player, weaponSpawner);
     ammo.position.set(game.width - 5, game.height - 5);
+
+    // Khởi tạo các sprite của group:hud 
     this.add.sprite(4, 4, "assets", "hud/health-icon", groups.hud);
+    // Khởi tạo daskIcon ??? - chưa nắm chi tiết 
     const dashIcon = new DashIcon(game, groups.hud, player);
     dashIcon.position.set(4, 36);
+
+    // Khởi tạo player-health là 1 image-bar 
     const playerHealth = new ImageBar(game, groups.hud, {
       x: 35,
       y: 7,
@@ -221,9 +243,12 @@ export default class PlayState extends Phaser.State {
       outlineKey: "hud/health-bar-outline"
     });
     player.onHealthChange.add(newHealth => playerHealth.setValue(newHealth));
+
+    // Khởi tạo WaveHud - chưa rõ đây là cái gì ???
     new WaveHud(game, groups.hud, enemySpawner.onWaveSpawn);
 
     // Difficulty toast messages
+    // Khởi tạo thông tin độ khó của game được hiển thị 
     globals.difficultyModifier.onDifficultyChange.add((previousDifficulty, difficulty) => {
       const truncatedPreviousDifficulty = Math.floor(previousDifficulty * 10) / 10;
       const truncatedDifficulty = Math.floor(difficulty * 10) / 10;
@@ -234,12 +259,14 @@ export default class PlayState extends Phaser.State {
     });
 
     // Combo "toast" messages
+    // Khởi tạo các loại thông báo PopUpText - khi có hành vi pickup
     weaponSpawner.onPickupCollected.add(pickup => {
       const location = Phaser.Point.add(pickup, new Phaser.Point(0, -30));
       const w = player.weaponManager.getActiveWeapon();
       new PopUpText(game, globals.groups.foreground, w.getName(), location);
     });
 
+    // Khởi tạo EnergyPickup - chưa rõ chi tiết 
     globals.groups.enemies.onEnemyKilled.add(enemy => {
       new EnergyPickup(this.game, enemy.x, enemy.y, globals.groups.pickups, player);
     });
@@ -256,6 +283,7 @@ export default class PlayState extends Phaser.State {
     });
 
     // Subscribe to the debug settings
+    // Sử dụng mobx với cơ chế autorun - để có sự thay đổi tương ứng với cập nhật về thông tin PreferenceStore 
     this.storeUnsubscribe = autorun(() => {
       this.lighting.setOpacity(preferencesStore.shadowOpacity);
       if (preferencesStore.physicsDebug) this.physics.sat.world.enableDebug();
@@ -268,13 +296,17 @@ export default class PlayState extends Phaser.State {
     this.game.sound.onUnMute.add(() => (this.game.sound.volume = preferencesStore.volume));
     this.game.sound.volume = preferencesStore.volume; // Sync volume on first load
 
+
     // Optional debug menu, pause w/o menus, switch weapons and fps text
+    // Các option khi bật cờ debug để debug thử cho nhanh 
     if (!this.game.debug.isDisabled) {
+      // 
       game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(() => {
         gameStore.setMenuState(MENU_STATE_NAMES.DEBUG);
         gameStore.pause();
       });
 
+      // 
       game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(() => {
         groups.enemies.killAll();
       });
