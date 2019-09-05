@@ -17,6 +17,9 @@ const ANIM = {
   DEATH: "DEATH"
 };
 
+/**
+ * Đối tượng Player được mở rộng từ đối tượng Sprite là 1 object trong game 
+ */
 export default class Player extends Phaser.Sprite {
   /**
 * Sprites are the lifeblood of your game, used for nearly everything visual.
@@ -209,10 +212,19 @@ export default class Player extends Phaser.Sprite {
     this._trail.setRate(25);
   }
 
+  /**
+   * Là hàm Update được tự động gọi trong mỗi game loop --> cần phải implement hàm này để xử lý các logic 
+   * Cơ bản xử lý các action của player: di chuyển + tấn công + các cập nhật về health + damage + weapon
+        * Override this method in your own custom objects to handle any update requirements.
+        * It is called immediately after `preUpdate` and before `postUpdate`.
+        * Remember if this Game Object has any children you should call update on those too.
+  */
   update() {
     if (this.isDead) return;
 
+    // 1. Check cập nhật của player-light
     this._playerLight.update();
+    // 2. Check cập nhật của bộ điều khiển chuyển động - xem có tín hiệu gì mới không 
     this._movementController.update();
     this._attackControls.update();
 

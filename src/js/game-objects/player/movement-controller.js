@@ -42,7 +42,11 @@ export default class MovementContoller {
 
   /**
    * Invoke this once per frame to move the controller's body based on the current contol input
-   *
+   * Cập nhật của bộ điều khiển chuyển động:
+   * + Cập nhật gia tốc cho các hướng di chuyển - nếu có - không thì mặc định là 0 
+   * + Cập nhật gia tốc tùy thuộc theo có input vào điều khiển "dash"
+   * + Cập nhật hướng tùy theo input của điều khiển chuột
+   * --> nếu bỏ điều khiển chuột tương tự như các game khác thì xem xét rotate đến near-by enemy 
    * @memberof MovementContoller
    */
   update() {
@@ -65,6 +69,7 @@ export default class MovementContoller {
     const multiplier = this.difficultyModifier.getSpeedMultiplier();
 
     // Calculate the acceleration and heading from the keyboard input
+    // Tạo ra acceleration mới mỗi lần update - tức là nếu không có input gì thì acceleration trở về giá trị 0
     let acceleration = new Phaser.Point(0, 0);
     if (this._movementType === MOVEMENT_TYPES.WALK) {
       this.body.setMaxSpeed(250 * multiplier);
