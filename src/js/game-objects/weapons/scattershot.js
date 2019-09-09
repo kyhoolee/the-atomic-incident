@@ -2,6 +2,10 @@ import BaseWeapon from "./base-weapon";
 import Projectile from "./projectile/";
 import WEAPON_TYPES from "./weapon-types";
 
+/**
+ * Tất cả các bản implementation chi tiết của từng loại vũ khí 
+ * được extend từ BaseWeapon - cung cấp các pattern + logic chung của tất cả các loại weapon
+ */
 export default class Scattershot extends BaseWeapon {
   constructor(game, parentGroup, player, enemies) {
     super(game, parentGroup, player, enemies, WEAPON_TYPES.SCATTERSHOT, 16, 480, 1800);

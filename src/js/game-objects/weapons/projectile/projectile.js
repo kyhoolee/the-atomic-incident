@@ -6,6 +6,7 @@ import {
 } from "./collision-logic";
 
 /**
+ * Đây là đối tượng projectile - nghĩa là đạn 
  * @class Projectile
  */
 export default class Projectile extends Phaser.Sprite {

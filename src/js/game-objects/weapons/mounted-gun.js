@@ -1,5 +1,9 @@
 import WEAPON_TYPES from "./weapon-types";
 
+/**
+ * Đối tượng súng đính kèm - có vị trí trùng với player
+ * Có hình ảnh riêng, và dùng để bắn đạn 
+ */
 export default class MountedGun extends Phaser.Sprite {
   constructor(game, x, y, parentGroup, player, type) {
     let mountedGunKey = "";
