@@ -1,11 +1,11 @@
 export default {
-  SCATTERSHOT: "SCATTERSHOT",
-  RAPID_FIRE: "RAPID_FIRE",
-  PIERCING_SHOT: "PIERCING_SHOT",
-  HOMING_SHOT: "HOMING_SHOT",
-  ROCKET_LAUNCHER: "ROCKET_LAUNCHER",
-  FLAMETHROWER: "FLAMETHROWER",
-  BOUNCING: "BOUNCING"
+  SCATTERSHOT: "SCATTERSHOT", // đạn tỏa chùm 
+  RAPID_FIRE: "RAPID_FIRE", // đạn liên thanh 
+  PIERCING_SHOT: "PIERCING_SHOT", // đạn xuyên giáp 
+  HOMING_SHOT: "HOMING_SHOT", // đạn đuổi 
+  ROCKET_LAUNCHER: "ROCKET_LAUNCHER", // đạn rocket 
+  FLAMETHROWER: "FLAMETHROWER", // đạn lửa 
+  BOUNCING: "BOUNCING" // đạn nảy tường 
 };
 
 export function getFormattedType(type) {

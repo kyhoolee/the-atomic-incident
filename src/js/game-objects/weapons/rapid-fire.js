@@ -2,6 +2,9 @@ import BaseWeapon from "./base-weapon";
 import Projectile from "./projectile/";
 import WEAPON_TYPES from "./weapon-types";
 
+/**
+ * Loại vũ khí liên thanh - bắn tốc độ đạn đi nhanh 
+ */
 export default class RapidFire extends BaseWeapon {
   constructor(game, parentGroup, player, enemies) {
     super(game, parentGroup, player, enemies, WEAPON_TYPES.RAPID_FIRE, 100, 75, 1800);

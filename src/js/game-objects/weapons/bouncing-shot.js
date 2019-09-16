@@ -3,7 +3,7 @@ import Projectile from "./projectile/";
 import WEAPON_TYPES from "./weapon-types";
 
 /**
- * Loại đạn bouncung với wall - tốc độ đi hơi chậm 
+ * Loại đạn bouncing với wall - tốc độ đi hơi chậm 
  */
 export default class BouncingShot extends BaseWeapon {
   constructor(game, parentGroup, player, enemies) {

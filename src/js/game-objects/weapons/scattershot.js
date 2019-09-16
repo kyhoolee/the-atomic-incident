@@ -3,6 +3,7 @@ import Projectile from "./projectile/";
 import WEAPON_TYPES from "./weapon-types";
 
 /**
+ * Vũ khí bắn đạn tỏa chùm 
  * Tất cả các bản implementation chi tiết của từng loại vũ khí 
  * được extend từ BaseWeapon - cung cấp các pattern + logic chung của tất cả các loại weapon
  */
@@ -22,6 +23,9 @@ export default class Scattershot extends BaseWeapon {
       const pelletNum = this.game.rnd.integerInRange(14, 20);
 
       // randomize the trajectory of every bulconst in the shotgun blast
+      /**
+       * Logic của đạn tỏa chùm - tạo ra chùm viên đạn 
+       */
       const multiplier = this._difficultyModifier.getSpeedMultiplier();
       for (let i = 0; i < pelletNum; i++) {
         const mod = this.game.rnd.integerInRange(0, 30) * (Math.PI / 180) * this.game.rnd.sign();
@@ -38,10 +42,17 @@ export default class Scattershot extends BaseWeapon {
     }
   }
 
+  /**
+   * 
+   * @param {góc bắn} angle 
+   * @param {khoảng cách đến player} playerDistance 
+   * @param {tốc độ bắn} speed 
+   */
   _createProjectile(angle, playerDistance, speed) {
     const player = this._player;
     const x = player.x + playerDistance * Math.cos(angle);
     const y = player.y + playerDistance * Math.sin(angle);
+    //makeScatterShot(game, x, y, parent, player, damage, angle, speed)
     const p = Projectile.makeScatterShot(this.game, x, y, this, player, this._damage, angle, speed);
     p.scale.setTo(0.64, 0.64);
   }

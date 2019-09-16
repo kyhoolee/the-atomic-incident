@@ -3,11 +3,21 @@ import Projectile from "./projectile/";
 import WEAPON_TYPES from "./weapon-types";
 import Enemy from "../enemies/enemy";
 
+/**
+ * Loại đạn đuổi theo enemy - nếu đủ gần enemy 
+ */
 export default class HomingShot extends BaseWeapon {
   constructor(game, parentGroup, player, enemies) {
-    super(game, parentGroup, player, enemies, WEAPON_TYPES.HOMING_SHOT, 36, 350, 1500);
-    this._damage = 24;
-    this._speed = 180;
+    //constructor(game, parentGroup, player, enemies, weaponType, totalAmmo, cooldownTime, reloadTime) 
+    let totalAmmo = 36;
+    let cooldownTime = 350;
+    let reloadTime = 1500;
+    let damage = 24;
+    let speed = 180;
+
+    super(game, parentGroup, player, enemies, WEAPON_TYPES.HOMING_SHOT, totalAmmo, cooldownTime, reloadTime);
+    this._damage = damage;
+    this._speed = speed;
 
     this._fireSound = game.globals.soundManager.add("fx/homing-missile", null, 0.6);
 
@@ -20,6 +30,10 @@ export default class HomingShot extends BaseWeapon {
       const closestEnemy = this._getClosestEnemy();
       const offset = 20 * Math.PI / 180;
       const targetAcquisitionDelay = 260; // ms
+
+      // Bắn ra viên đạn đuổi bằng cách bắn ra 3 biên đạn - tỏa ra 3 góc 
+      // Nhưng cùng hướng đến việc đuổi theo 1 enemy gần nhất 
+
       const p1 = this._createProjectile(angle - offset, 24, speed);
       p1._target = closestEnemy;
       p1._targetAcquisitionDelayTime = this.game.time.now + targetAcquisitionDelay;
@@ -37,6 +51,9 @@ export default class HomingShot extends BaseWeapon {
     }
   }
 
+  /**
+   * Cần hàm update để xoay trỏ hướng bắn theo enemy gần nhất 
+   */
   update() {
     const maxRotation = 2 * Math.PI * this.game.time.physicsElapsed; // 360 deg/s
     const offset = Math.PI / 2; // Graphic is 90 degrees rotated from what Phaser expects
@@ -63,6 +80,10 @@ export default class HomingShot extends BaseWeapon {
     super.update();
   }
 
+  /**
+   * 
+   * @param {vị trí tương đối cần lấy ra enemy gần nhất - mặc định là player} target 
+   */
   _getClosestEnemy(target) {
     let closestEnemy = null;
     let closestDistance = Number.MAX_VALUE;
@@ -82,10 +103,17 @@ export default class HomingShot extends BaseWeapon {
     return closestEnemy;
   }
 
+  /**
+   * 
+   * @param {góc} angle 
+   * @param {khoảng cách với player} playerDistance 
+   * @param {tốc độ} speed 
+   */
   _createProjectile(angle, playerDistance, speed) {
     const player = this._player;
     const x = player.x + playerDistance * Math.cos(angle);
     const y = player.y + playerDistance * Math.sin(angle);
+    // Tạo ra viên đạn loại homing-shot
     const p = Projectile.makeHomingShot(this.game, x, y, this, player, this._damage, angle, speed);
     return p;
   }
