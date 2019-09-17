@@ -224,7 +224,12 @@ export default class Projectile extends Phaser.Sprite {
 
     this.deathTimer;
 
-    // 
+    /**
+      this.game.physics.sat = {
+      add: this.factory,
+      world: this.world
+    };
+     */
     game.physics.sat.add
       .gameObject(this)
       .setCircle(this.width / 2)

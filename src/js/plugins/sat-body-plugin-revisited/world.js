@@ -1,11 +1,44 @@
+// RBush is a high-performance JavaScript library for 2D spatial indexing of points and rectangles. 
+// It's based on an optimized R-tree data structure with bulk insertion support
+// là thư viện hỗ trợ dạng 2-D tree để truy vấn nhanh near points dựa theo 2-d location 
 import rbush from "rbush";
 import BODY_SHAPES from "./body-shapes";
 import BODY_TYPES from "./body-types";
+
+//https://www.npmjs.com/package/sat - là thư viện javascript implement các logic của separate axis theorem
 import SAT from "sat";
 import Body from "./body";
 import logger from "../../helpers/logger";
 
+// viết tắt cho phaser-point
 const P = Phaser.Point;
+// viết tắt cho SAT.Response()
+/**
+var V = SAT.Vector;
+var C = SAT.Circle;
+ 
+var circle1 = new C(new V(0,0), 20);
+var circle2 = new C(new V(30,0), 20);
+var response = new SAT.Response();
+var collided = SAT.testCircleCircle(circle1, circle2, response);
+ 
+// collided => true
+// response.overlap => 10
+// response.overlapV => (10, 0)
+
+SAT.Response
+This is the object representing the result of a collision between two objects. It just has a simple new Response() constructor.
+
+It has the following properties:
+
+a - The first object in the collision.
+b - The second object in the collison.
+overlap - Magnitude of the overlap on the shortest colliding axis.
+overlapN - The shortest colliding axis (unit-vector)
+overlapV - The overlap vector (i.e. overlapN.scale(overlap, overlap)). If this vector is subtracted from the position of a, a and b will no longer be colliding.
+aInB - Whether the first object is completely inside the second.
+bInA - Whether the second object is completely inside the first.
+ */
 const globalResponse = new SAT.Response();
 const globalTreeSearch = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
 const reverseCallback = (cb, context) => {
@@ -13,6 +46,9 @@ const reverseCallback = (cb, context) => {
   else return (arg1, arg2) => cb.call(context, arg2, arg1);
 };
 
+/**
+ * Đối tượng World - ở đây là 2-d world chứa tất cả các đối tượng quan tâm chính vào 2d-position 
+ */
 export default class World {
   /**
    *
@@ -57,28 +93,48 @@ export default class World {
   resume() { }
   addOverlap() { }
 
+  /**
+   * Đưa thêm 1 body vào world để kiểm tra chuyển động + va chạm 
+   * @param {Đối tượng body đưa vào world} body 
+   */
   add(body) {
     if (body.bodyType === BODY_TYPES.STATIC) this.staticBodies.add(body);
     else if (body.bodyType === BODY_TYPES.DYNAMIC) this.bodies.add(body);
     return this;
   }
 
+  /**
+   * Xóa đối tượng body khỏi world 
+   * @param {Đối tượng body xóa khỏi world} body 
+   */
   remove(body) {
     if (body.bodyType === BODY_TYPES.STATIC) this.staticBodies.delete(body);
     else if (body.bodyType === BODY_TYPES.DYNAMIC) this.bodies.delete(body);
     return this;
   }
 
+  /**
+   * 
+   * @param {??? một va chạm} collider 
+   */
   addCollider(collider) {
     this.colliders.push(collider);
     return this;
   }
 
+  /**
+   * 
+   * @param {??? một va chạm} collider 
+   */
   removeCollider(collider) {
     this.colliders = this.colliders.filter(c => c !== collider);
     return this;
   }
 
+  /**
+   * Bật chế độ debug 
+   * @param {???} graphics 
+   */
   enableDebug(graphics) {
     this.drawDebug = true;
     if (this.debugGraphics) {
@@ -94,12 +150,27 @@ export default class World {
     return this;
   }
 
+  /**
+   * Tắt debug 
+   */
   disableDebug() {
     this.drawDebug = false;
     if (this.debugGraphics) this.debugGraphics.destroy();
     return this;
   }
 
+  /**
+   * Giới hạn vùng không gian của world ???
+   * @param {top-left} x 
+   * @param {top-left} y 
+   * @param {*} width 
+   * @param {*} height 
+   * @param {*} thickness 
+   * @param {*} left 
+   * @param {*} right 
+   * @param {*} top 
+   * @param {*} bottom 
+   */
   setBounds(
     x,
     y,
@@ -117,24 +188,28 @@ export default class World {
     if (this.bottomWall) this.bottomWall.destroy();
 
     if (left) {
+      // Tạo tường trái ???
       this.leftWall = new Body(this, { bodyType: BODY_TYPES.STATIC })
         .setRectangle(thickness, height + 2 * thickness)
         .setPosition(x - thickness, y - thickness);
       this.add(this.leftWall);
     }
     if (right) {
+      // Tạo tường phải 
       this.rightWall = new Body(this, { bodyType: BODY_TYPES.STATIC })
         .setRectangle(thickness, height + 2 * thickness)
         .setPosition(x + width, y - thickness);
       this.add(this.rightWall);
     }
     if (top) {
+      // Tạo tường trên 
       this.topWall = new Body(this, { bodyType: BODY_TYPES.STATIC })
         .setRectangle(width + 2 * thickness, thickness)
         .setPosition(x - thickness, y - thickness);
       this.add(this.topWall);
     }
     if (bottom) {
+      // Tạo tường dưới ??? 
       this.bottomWall = new Body(this, { bodyType: BODY_TYPES.STATIC })
         .setRectangle(width + 2 * thickness, thickness)
         .setPosition(x - thickness, y + height);
@@ -142,6 +217,9 @@ export default class World {
     }
   }
 
+  /**
+   * Chuẩn bị trước khi update 
+   */
   preUpdate() {
     // Only preUpdate bodies without GOs, since v2 Phaser sprites automatically call preUpdate
     this.bodies.forEach(body => {
@@ -160,10 +238,16 @@ export default class World {
     this.tree.load(enabledBodies);
   }
 
+  /**
+   * Update - cập nhật tất cả các collider ???
+   */
   update() {
     this.colliders.forEach(collider => collider.update());
   }
 
+  /**
+   * Sau khi update xong 
+   */
   postUpdate() {
     // Only postUpdate bodies without GOs, since v2 Phaser sprites automatically call postUpdate
     this.bodies.forEach(body => {
@@ -177,12 +261,22 @@ export default class World {
     if (this.drawDebug) this.debugDraw(this.debugGraphics);
   }
 
+  /**
+   * Debug vấn đề vẽ 
+   * @param {*} graphics 
+   */
   debugDraw(graphics) {
     graphics.clear();
     this.staticBodies.forEach(body => body.drawDebug(graphics));
     this.bodies.forEach(body => body.drawDebug(graphics));
   }
 
+  /**
+   * Kiểm tra 2 object có overlap 
+   * @param {*} object1 
+   * @param {*} object2 
+   * @param {*} options 
+   */
   overlap(object1, object2, options = {}) {
     options.separate = false;
     return this.collide(object1, object2, options);
@@ -190,6 +284,12 @@ export default class World {
 
   // Sprite|Body|Group|TilemapLayer vs Sprite|Body|Group|TilemapLayer
   // Options: onCollide, context, separateBodies
+  /**
+   * Kiểm tra 2 object có collide
+   * @param {*} object1 
+   * @param {*} object2 
+   * @param {*} param2 
+   */
   collide(object1, object2, { onCollide, context, separate = true } = {}) {
     const object1IsObject = object1.isSatBody || object1.physicsType === Phaser.SPRITE;
     const object2IsObject = object2.isSatBody || object2.physicsType === Phaser.SPRITE;
@@ -227,6 +327,14 @@ export default class World {
   }
 
   // Body||Sprite vs Body||Sprite
+  /**
+   * Kiểm tra 2 object có collide 
+   * @param {*} object1 
+   * @param {*} object2 
+   * @param {*} onCollide 
+   * @param {*} context 
+   * @param {*} separate 
+   */
   collideObjectVsObject(object1, object2, onCollide, context, separate = true) {
     const body1 = object1.isSatBody ? object1 : object1.body;
     const body2 = object2.isSatBody ? object2 : object2.body;
@@ -280,6 +388,9 @@ export default class World {
   }
 
   // Body||Sprite vs TilemapLayer
+  /**
+   * Kiểm tra object có collide với tilemap
+   */
   collideObjectVsTilemapLayer(object, tilemapLayer, onCollide, context, separate = true) {
     const body = object.isSatBody ? object : object.body;
 
@@ -409,6 +520,14 @@ export default class World {
     return collides;
   }
 
+  /**
+   * Kiểm tra group có collide với tilemap
+   * @param {*} group 
+   * @param {*} tilemapLayer 
+   * @param {*} onCollide 
+   * @param {*} context 
+   * @param {*} separate 
+   */
   collideGroupVsTilemapLayer(group, tilemapLayer, onCollide, context, separate = true) {
     let collides = false;
     group.children.forEach(child => {
@@ -420,10 +539,21 @@ export default class World {
     return collides;
   }
 
+  /**
+   * Kiểm tra 2 body có overlap 
+   * @param {*} bodyA 
+   * @param {*} bodyB 
+   */
   checkBodyOverlap(bodyA, bodyB) {
     return this.checkBodyCollide(bodyA, bodyB, null);
   }
 
+  /**
+   * Kiểm tra 2 body có collide
+   * @param {*} bodyA 
+   * @param {*} bodyB 
+   * @param {*} response 
+   */
   checkBodyCollide(bodyA, bodyB, response = new SAT.Response()) {
     response.clear();
 
@@ -446,6 +576,12 @@ export default class World {
     return collides ? response : false;
   }
 
+  /**
+   * Kiểm tra 2 body có tách nhau 
+   * @param {*} body1 
+   * @param {*} body2 
+   * @param {*} response 
+   */
   separateBodies(body1, body2, response) {
     if (body1.bodyType === BODY_TYPES.DYNAMIC && body2.bodyType === BODY_TYPES.DYNAMIC) {
       this.separateBodiesDynamicVsDynamic(body1, body2, response);
@@ -458,6 +594,12 @@ export default class World {
     }
   }
 
+  /**
+   * ???? 
+   * @param {*} body1 
+   * @param {*} body2 
+   * @param {*} response 
+   */
   separateBodiesDynamicVsDynamic(body1, body2, response) {
     // Resolve overlap
     const halfResponse = response.overlap / 2;
@@ -488,6 +630,12 @@ export default class World {
     if (body2.collisionAffectsVelocity) body2.velocity.y = vyAve + vy2New * body2.bounce;
   }
 
+  /**
+   * ????
+   * @param {*} body1 
+   * @param {*} body2 
+   * @param {*} response 
+   */
   separateBodiesDynamicVsStatic(body1, body2, response) {
     // Resolve overlap
     body1.position.x -= response.overlap * response.overlapN.x;
@@ -538,6 +686,9 @@ export default class World {
     // http://www.dyn4j.org/2011/11/contact-points-using-clipping/
   }
 
+  /**
+   * 
+   */
   destroy() {
     if (this.leftWall) this.leftWall.destroy();
     if (this.rightWall) this.rightWall.destroy();

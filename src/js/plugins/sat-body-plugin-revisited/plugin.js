@@ -2,8 +2,39 @@ import World from "./world";
 import Factory from "./factory";
 import namespace from "./namespace";
 
+/**
+ * Đây là plugin về quản lý các object trong game có va chạm với nhau hay không theo thuật toán SAT 
+ * SAT - The Separating Axis Theorem, SAT for short, is a method to determine if two convex shapes are intersecting
+ * Tham khảo - http://www.dyn4j.org/2010/01/sat/
+ */
 export default class SatBodyPlugin extends Phaser.Plugin {
+  /**
+   * Hàm khởi tạo cơ bản của SATBodyPlugin
+   * @param {đối tượng game} game 
+   * @param {đối tượng quản lý chung các plugin} pluginManager 
+   */
   constructor(game, pluginManager) {
+    /**
+     * /**
+        * This is a base Plugin template to use for any Phaser plugin development.
+        * 
+        * ##### Callbacks
+        * 
+        * add  | active      | visible     | remove
+        * -----|-------------|-------------|--------
+        * init |             |             |
+        *      | preUpdate*  |             |
+        *      | update*     | render*     |
+        *      | postUpdate* | postRender* |
+        *      |             |             | destroy
+        * 
+        * Update and render calls are repeated (*).
+        * 
+        * @param game A reference to the currently running game.
+        * @param parent The object that owns this plugin, usually Phaser.PluginManager.
+        *
+       constructor(game: Phaser.Game, parent: Phaser.PluginManager);
+     */
     super(game, pluginManager);
     this.game = game;
     this.pluginManager = pluginManager;
@@ -39,18 +70,30 @@ export default class SatBodyPlugin extends Phaser.Plugin {
     };
   }
 
+  /**
+   * Hàm chuẩn bị trước khi update các chuyển động của các đối tượng 
+   */
   preUpdate() {
     this.world.preUpdate();
   }
 
+  /**
+   * Thực hiện update chuyển động và thông báo các va chạm 
+   */
   update() {
     this.world.update();
   }
 
+  /**
+   * Sau khi update chuyển động và thông báo va chạm 
+   */
   postUpdate() {
     this.world.postUpdate();
   }
 
+  /**
+   * Xóa đối tượng 
+   */
   destroy() {
     this.world.destroy();
   }
