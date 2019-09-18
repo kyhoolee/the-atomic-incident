@@ -389,7 +389,7 @@ export default class World {
 
   // Body||Sprite vs TilemapLayer
   /**
-   * Kiểm tra object có collide với tilemap
+   * Thực hiện logic khi object collide với tilemap
    */
   collideObjectVsTilemapLayer(object, tilemapLayer, onCollide, context, separate = true) {
     const body = object.isSatBody ? object : object.body;

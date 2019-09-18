@@ -6,7 +6,7 @@ import {
 } from "./collision-logic";
 
 /**
- * Đây là đối tượng projectile - nghĩa là đạn 
+ * Đây là đối tượng projectile - nghĩa là đạn - cũng là 1 Phaser.Sprite 
  * @class Projectile
  */
 export default class Projectile extends Phaser.Sprite {
@@ -229,7 +229,10 @@ export default class Projectile extends Phaser.Sprite {
       add: this.factory,
       world: this.world
     };
-     */
+    Đưa đối tượng vào mẫu tạo factory tạo đối tượng
+    Với projectile thì đạn có dạng là hình tròn với radius = width/2
+    Vận tốc 2 chiều x, y tính ra theo độ lớn speed và cos, sin tương ứng của angle
+    */
     game.physics.sat.add
       .gameObject(this)
       .setCircle(this.width / 2)
@@ -244,14 +247,23 @@ export default class Projectile extends Phaser.Sprite {
    */
   init(logic) {
     this.collisionLogic = logic;
-    if (this.game.physics.sat.world.collide(this, this._wallLayer)) this.destroy();
+    if (this.game.physics.sat.world.collide(this, this._wallLayer))
+      this.destroy();
   }
 
+  /**
+   * Hàm cập nhật của Sprite-projectile 
+   */
   update() {
+    // Gọi logic trước khi va chạm
     this.collisionLogic.onBeforeCollisions();
 
+    // Gọi logic khi va chạm với wall-layer 
+    // SAT-world có khả năng detect ra va chạm giữa đối tượng body bên trong với wall 
+    // Nếu muốn tạo ra nhiều loại va chạm giữa các nhóm đối tượng hơn thì cần mở rộng ở SAT-world 
     this.game.physics.sat.world.collide(this, this._wallLayer, {
       onCollide: () => {
+        // Khi có va chạm xảy thì gọi logic va chạm với wall thực hiện 
         if (this.game) this.collisionLogic.onCollideWithWall();
       }
     });

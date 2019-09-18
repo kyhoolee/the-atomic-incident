@@ -15,6 +15,13 @@ const colorMap = {
 const getColorFromType = type => colorMap[type] || 0xffffff;
 
 // TODO(rex): Make this more flexible.
+/**
+ * Sprite mô tả cho quá trình va chạm và hủy của viên đạn 
+ * Phong cách lập trình ở đây là mỗi Sprite chỉ phục vụ cho 1 loại trạng thái 
+ * Khi có thay đổi - event biến đổi xảy ra thì hủy Sprite cũ và chuyển sang Sprite mới hoạt động
+ * Ví dụ
+ * Sprite-player --> Sprite-gun --> Sprite-projectile khi bắn --> Sprite-projectile-hit đạn khi hủy 
+ */
 export default class ProjectileHit extends Phaser.Sprite {
   /**
    * @param {Phaser.Game} game - Reference to Phaser.Game.

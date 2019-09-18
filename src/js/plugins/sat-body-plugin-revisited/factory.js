@@ -21,8 +21,14 @@ export default class Factory {
     return body;
   }
 
+  /**
+   * 
+   * @param {đối tượng trong game} gameObject 
+   * @param {*} options 
+   */
   gameObject(gameObject, options = {}) {
     options.gameObject = gameObject;
+    // Đưa gameObject vào physics-world --> Tạo ra physics-body tương ứng 
     const body = new Body(this.world, options);
     this.world.add(body);
     return body;

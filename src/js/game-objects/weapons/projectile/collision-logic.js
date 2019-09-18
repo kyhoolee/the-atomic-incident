@@ -20,8 +20,8 @@ export class CollisionLogic {
   }
 
   /** Noop on base class, but can be used in derived classes */
-  onBeforeCollisions() {}
-  onAfterCollisions() {}
+  onBeforeCollisions() { }
+  onAfterCollisions() { }
 
   // Destroy no matter what
   onCollideWithEnemy(enemy) {
@@ -76,6 +76,7 @@ export class BouncingCollisionLogic extends CollisionLogic {
   // Noop
   onCollideWithWall() {
     this.wallHitSound.play();
+    // --> Khi va chạm với wall thì ko làm gì --> Vậy logic vật lý nảy lại thì được thực hiện ở đâu ???
   }
 }
 

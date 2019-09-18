@@ -6,6 +6,9 @@ import logger from "../../helpers/logger";
 const P = Phaser.Point;
 const applyDefault = (value, defaultValue) => (value !== undefined ? value : defaultValue);
 
+/**
+ * Lớp physics-body mô tả các thông tin vê 1 đối tượng vật lý - có khả năng chuyển động va chạm 
+ */
 export default class Body {
   constructor(
     world,
