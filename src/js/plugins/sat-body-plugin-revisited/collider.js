@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 export default class Collider {
   // Options: onCollide, context, separate
   constructor(world, object1, object2, options) {

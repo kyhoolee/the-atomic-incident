@@ -390,6 +390,7 @@ export default class World {
   // Body||Sprite vs TilemapLayer
   /**
    * Thực hiện logic khi object collide với tilemap
+   * Có thể logic về bouncing được xử lý ở đây - cho vật thể chuyển động bouncing khi xảy colliding
    */
   collideObjectVsTilemapLayer(object, tilemapLayer, onCollide, context, separate = true) {
     const body = object.isSatBody ? object : object.body;
@@ -550,6 +551,7 @@ export default class World {
 
   /**
    * Kiểm tra 2 body có collide
+   * Sử dụng SAT để kiểm tra collide giữa các loại body-shape 
    * @param {*} bodyA 
    * @param {*} bodyB 
    * @param {*} response 

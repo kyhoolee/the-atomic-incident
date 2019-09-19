@@ -105,6 +105,8 @@ export default class Projectile extends Phaser.Sprite {
     const key = "assets";
     const frame = "weapons/bouncing";
     const bullet = new Projectile(game, x, y, key, frame, parent, player, angle, speed);
+    // Vì là bouncing nên giá trị bounce = 1 - nẩy hoàn toàn 
+    // Các đạn khác mặc đình là 0
     bullet.body.setBounce(1);
     bullet.init(new BouncingCollisionLogic(bullet, damage));
     return bullet;

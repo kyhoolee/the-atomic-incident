@@ -40,6 +40,12 @@ export default class Factory {
     return collider;
   }
 
+  /**
+   * Đưa logic thực hiện 2 object1 và object2 overlap vào world
+   * @param {đối tượng 1} object1 
+   * @param {đối tượng 2} object2 
+   * @param {nội dung hàm thực hiện khi xảy ra overlap giữa đối tượng 1 và đối tượng 2} options 
+   */
   overlap(object1, object2, options = {}) {
     options.separate = false;
     return this.collider(object1, object2, options);
