@@ -147,6 +147,17 @@ export default class PlayState extends Phaser.State {
    class PluginManager implements IStateCycle {
     */
     // Plugins.1. Plugins để kiemr tra các đối tượng trong game va chạm   
+    /*
+    
+    * Add a new Plugin into the PluginManager.
+    * The Plugin must have 2 properties: game and parent. Plugin.game is set to the game reference the PluginManager uses, and parent is set to the PluginManager.
+    * 
+    * @param plugin The Plugin to add into the PluginManager. This can be a function or an existing object.
+    * @param args Additional arguments that will be passed to the Plugin.init method.
+    * @return The Plugin that was added to the manager.
+    *
+    add<T extends Phaser.Plugin>(plugin: PluginConstructorOf<T>, ...parameters: any[]): T;
+    */
     globals.plugins.satBody = game.plugins.add(SatBodyPlugin);
     // Plugins.2. Plugins để tạo ra các effect trong game    
     globals.plugins.effects = game.plugins.add(EffectsPlugin);

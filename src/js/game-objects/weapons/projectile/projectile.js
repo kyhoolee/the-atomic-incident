@@ -235,9 +235,20 @@ export default class Projectile extends Phaser.Sprite {
     Với projectile thì đạn có dạng là hình tròn với radius = width/2
     Vận tốc 2 chiều x, y tính ra theo độ lớn speed và cos, sin tương ứng của angle
     */
-    game.physics.sat.add
-      .gameObject(this)
-      .setCircle(this.width / 2)
+    game.physics.sat.add // add ở đây là Factory
+      .gameObject(this) // tạo ra 1 body cho game-object này và trả ra physics-body đó 
+      .setCircle(this.width / 2) // gắn thuộc tính là circle với radius = width/2 
+      /**
+      // Center is at gameObject.position
+      setCircle(radius) {
+        if (radius === undefined && this.gameObject) radius = this.gameObject.width / 2;
+        this.bodyShape = BODY_SHAPES.CIRCLE;
+        this.satBody = circle(vec(0, 0), radius);
+        this.updateSatBodyPosition();
+        this.updateBounds();
+        return this;
+      }
+       */
       .setVelocity(speed * Math.cos(angle), speed * Math.sin(angle));
   }
 

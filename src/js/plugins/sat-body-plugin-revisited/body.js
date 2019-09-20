@@ -259,11 +259,17 @@ export default class Body {
     }
   }
 
+  /**
+   * Cập nhật vị trí cho satBody - body này dùng cho việc check va chạm theo kiểu SAT 
+   */
   updateSatBodyPosition() {
     this.satBody.pos.x = this.offset.x + this.position.x;
     this.satBody.pos.y = this.offset.y + this.position.y;
   }
 
+  /**
+   * Cập nhật lại bound theo hình chữ nhật 
+   */
   updateBounds() {
     let left, right, top, bottom;
 

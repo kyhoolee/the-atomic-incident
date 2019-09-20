@@ -65,14 +65,18 @@ export default class World {
     this.bodies = [];
     this.colliders = [];
 
+    // Là 1 set chứa danh sách các Body 
     this.bodies = new Set();
+    // Cũng là 1 set chứa danh sách các Body
     this.staticBodies = new Set();
 
     this.gravity = new P(0, 0);
 
     this.maxEntries = 16;
     // RBush — a high-performance JavaScript R-tree-based 2D spatial index for points and rectangles
+    // Tree để lưu các dynamics body 
     this.tree = new rbush(this.maxEntries, [".left", ".top", ".right", ".bottom"]);
+    // Và Tree để lưu static body 
     this.staticTree = new rbush(this.maxEntries, [".left", ".top", ".right", ".bottom"]);
 
     // TODO:
@@ -95,6 +99,7 @@ export default class World {
 
   /**
    * Đưa thêm 1 body vào world để kiểm tra chuyển động + va chạm 
+   * mặc định là body kiểu dynamics --> chắc là dành cho gameobject
    * @param {Đối tượng body đưa vào world} body 
    */
   add(body) {
@@ -235,6 +240,11 @@ export default class World {
     const enabledBodies = [];
     for (const body of this.bodies) if (body.enabled) enabledBodies.push(body);
     this.tree.clear();
+    /*
+    Bulk-Inserting Data
+    Bulk-insert the given data into the tree:
+    tree.load([item1, item2, ...]);
+    */
     this.tree.load(enabledBodies);
   }
 
@@ -633,7 +643,8 @@ export default class World {
   }
 
   /**
-   * ????
+   * --> Đây chính là đoạn xử lý va chạm giữa đối tượng chuyển động và đối tượng không chuyển động
+   * --> Từ đó xác định cơ chế phản xạ lại lực và có tính toán dựa vào giá trị bounce
    * @param {*} body1 
    * @param {*} body2 
    * @param {*} response 
