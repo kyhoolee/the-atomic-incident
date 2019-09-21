@@ -27,8 +27,9 @@ var collided = SAT.testCircleCircle(circle1, circle2, response);
 // response.overlapV => (10, 0)
 
 SAT.Response
-This is the object representing the result of a collision between two objects. It just has a simple new Response() constructor.
-
+This is the object representing the result of a collision between two objects. 
+It just has a simple new Response() constructor.
+--> Đây là đối tượng rất quan trọng - chứa thông tin về kết quả va chạm iuwax 2 đối tượng 
 It has the following properties:
 
 a - The first object in the collision.
@@ -48,12 +49,21 @@ const reverseCallback = (cb, context) => {
 
 /**
  * Đối tượng World - ở đây là 2-d world chứa tất cả các đối tượng quan tâm chính vào 2d-position 
+ * World xử lý tất cả các nguyên tắc vật lý cho các Body được đưa vào world 
+ * Các sự thay đổi về tính chất vật lý: gia tốc, vận tốc, vị trí hoàn toàn được xử lý ở đây 
+ * Các đối tượng có 2 loại tương tác: collide - va chạm, overlap - xuyên qua 
+ * Khi phát sinh collide hay overlap thì ngoài việc xử lý theo tính chất vật lý thì đồng thời cũng gọi xử lý các logic đính kèm 
+ * 
+ * Các nội dung trong Sat-body-plugin này - cụ thể chính xác là đối tượng World được implement đầy đủ về physics
+ * Có thể tách ra thành 1 phần core riêng cho nhiều game khác 
+ * Tách biệt tương đối ??? so với Phaser-game - Không sử dụng thư viện Physics nào của Phaser 
+ * Có thể học tập theo để hệ thống hóa lại game AgarIO-clone 
  */
 export default class World {
   /**
    *
-   * @param {Phaser.Game} game
-   * @param {*} satPlugin
+   * @param {Trỏ ngược lại về đối tượng Game - Phaser.Game} game
+   * @param {Trỏ ngược lại về SatBodyPlugin - là một plugin của Phaser} satPlugin
    */
   constructor(game, satPlugin) {
     this.game = game;
@@ -62,7 +72,9 @@ export default class World {
     this.drawDebug = false;
     this.debugGraphics = null;
 
+    // Danh sách các Body được xử lý tính chất vật lý - nằm trong World 
     this.bodies = [];
+    // Danh sách các listener cần thực hiện mỗi khi xảy ra collide 
     this.colliders = [];
 
     // Là 1 set chứa danh sách các Body 
@@ -70,6 +82,7 @@ export default class World {
     // Cũng là 1 set chứa danh sách các Body
     this.staticBodies = new Set();
 
+    // Trọng trường - mặc định là 0,0 - tức là không bị kéo về hướng nào 
     this.gravity = new P(0, 0);
 
     this.maxEntries = 16;
@@ -103,7 +116,9 @@ export default class World {
    * @param {Đối tượng body đưa vào world} body 
    */
   add(body) {
+    // thêm đối tượng static 
     if (body.bodyType === BODY_TYPES.STATIC) this.staticBodies.add(body);
+    // thêm đối tượng dynamic 
     else if (body.bodyType === BODY_TYPES.DYNAMIC) this.bodies.add(body);
     return this;
   }
@@ -113,14 +128,17 @@ export default class World {
    * @param {Đối tượng body xóa khỏi world} body 
    */
   remove(body) {
+    // xóa đối tượng static 
     if (body.bodyType === BODY_TYPES.STATIC) this.staticBodies.delete(body);
+    // xóa đối tượng dynamic 
     else if (body.bodyType === BODY_TYPES.DYNAMIC) this.bodies.delete(body);
     return this;
   }
 
   /**
-   * 
-   * @param {??? một va chạm} collider 
+   * Collider là 1 đối tượng quản lý logic liên quan giữa va chạm của 2 đối tượng
+   * Đưa đối tượng collider vào World để check xử lý 
+   * @param {một collision-listener} collider 
    */
   addCollider(collider) {
     this.colliders.push(collider);
@@ -128,7 +146,7 @@ export default class World {
   }
 
   /**
-   * 
+   * Xóa logic va chạm Collider ra khỏi World 
    * @param {??? một va chạm} collider 
    */
   removeCollider(collider) {
@@ -137,8 +155,8 @@ export default class World {
   }
 
   /**
-   * Bật chế độ debug 
-   * @param {???} graphics 
+   * Bật chế độ debug - chắc là đối tượng graphics sẽ vẽ đè một số thông tin cần thiết khi debug 
+   * @param {Chắc là một đối tượng graphics} graphics 
    */
   enableDebug(graphics) {
     this.drawDebug = true;
@@ -168,13 +186,13 @@ export default class World {
    * Giới hạn vùng không gian của world ???
    * @param {top-left} x 
    * @param {top-left} y 
-   * @param {*} width 
-   * @param {*} height 
-   * @param {*} thickness 
-   * @param {*} left 
-   * @param {*} right 
-   * @param {*} top 
-   * @param {*} bottom 
+   * @param {chiều rộng} width 
+   * @param {chiều cao} height 
+   * @param {độ dày ???} thickness 
+   * @param {trái ?} left 
+   * @param {phải ?} right 
+   * @param {trên ?} top 
+   * @param {dưới ?} bottom 
    */
   setBounds(
     x,
@@ -192,11 +210,15 @@ export default class World {
     if (this.topWall) this.topWall.destroy();
     if (this.bottomWall) this.bottomWall.destroy();
 
+    /* 
+    Tạo các loại tường-wall tương ứng 
+    - do nếu đi đến giới hạn của logic map thì phía physic-wall cũng phải xuất hiện 
+    */
     if (left) {
-      // Tạo tường trái ???
-      this.leftWall = new Body(this, { bodyType: BODY_TYPES.STATIC })
-        .setRectangle(thickness, height + 2 * thickness)
-        .setPosition(x - thickness, y - thickness);
+      // Tạo tường trái với độ dày thickness 
+      this.leftWall = new Body(this, { bodyType: BODY_TYPES.STATIC }) // tạo ra đối tượng Body kiểu static 
+        .setRectangle(thickness, height + 2 * thickness) // có hình dạng là hình chữ nhật 
+        .setPosition(x - thickness, y - thickness); // có vị trí là x-thickness và y-thickness 
       this.add(this.leftWall);
     }
     if (right) {
@@ -589,7 +611,23 @@ export default class World {
   }
 
   /**
-   * Kiểm tra 2 body có tách nhau 
+   * Không phải là kiểm tra 2 body có tách nhau mà là thực hiện logic để đảm bảo 2 body phải tách nhau 
+   * Đây chính là logic chính của va chạm vật lý sẽ gây ra các tác động thay đổi gia tốc, vận tốc, vị trí ra sao 
+   * 1 core quan trọng của logic vật lý - ngoài core về update liên hệ gia tốc, vận tốc, vị trí 
+   *   //
+  // An object representing the result of an intersection. Contains:
+  //  - The two objects participating in the intersection
+  //  - The vector representing the minimum change necessary to extract the first object
+  //    from the second one (as well as a unit vector in that direction and the magnitude
+  //    of the overlap)
+  //  - Whether the first object is entirely inside the second, and vice versa.
+  function Response() {
+    this['a'] = null;
+    this['b'] = null;
+    this['overlapN'] = new Vector();
+    this['overlapV'] = new Vector();
+    this.clear();
+  }
    * @param {*} body1 
    * @param {*} body2 
    * @param {*} response 
@@ -600,6 +638,14 @@ export default class World {
     } else if (body1.bodyType === BODY_TYPES.DYNAMIC && body2.bodyType === BODY_TYPES.STATIC) {
       this.separateBodiesDynamicVsStatic(body1, body2, response);
     } else if (body1.bodyType === BODY_TYPES.STATIC && body2.bodyType === BODY_TYPES.DYNAMIC) {
+      /*
+        // Reverse this vector.
+        Vector.prototype['reverse'] = Vector.prototype.reverse = function() {
+          this['x'] = -this['x'];
+          this['y'] = -this['y'];
+          return this;
+        };
+      */
       response.overlapN.reverse();
       response.overlapV.reverse();
       this.separateBodiesDynamicVsStatic(body1, body2, response);
@@ -607,7 +653,13 @@ export default class World {
   }
 
   /**
-   * ???? 
+   * Tách 2 đối tượng dynamic ra khỏi nhau 
+   * Khi 2 đối tượng dynamic va chạm nhau thì chỉ có logic biến mất hoặc trừ health
+   * Không có các logic nảy phức tạp - class World này chỉ handle đơn giản 
+   * Nếu muốn làm logic va chạm phức tạp hơn - ví dụ enemy phải lùi lại sau khi trúng đạn 
+   * Thì nên đưa vào logic trúng đạn của enemy 
+   * --> Điểm này nên code thử  luôn để xem các logic vật lý có hoạt động như kì vọng 
+   * --> Idea có cho các loại vũ khí có vai trò như dao động làm enemy mất kiểm soát 
    * @param {*} body1 
    * @param {*} body2 
    * @param {*} response 
