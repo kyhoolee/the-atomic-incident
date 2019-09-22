@@ -1,5 +1,11 @@
 import Color from "../../helpers/color";
 
+/**
+ * Trong game này thì cơ chế là user được phủ bởi 1 vùng light tròn 
+ * Nếu bị tường chắn thì light ko đi qua 
+ * Ở những vùng tối thì sẽ có dấu hiệu compass - chỉ ra phía nào có đạn và phía nào có enemy 
+ * Compass này chỉ ra enemy ở phía nào - còn đạn thì chắc xử lý ở chỗ khác 
+ */
 export default class Compass extends Phaser.Image {
   constructor(game, parent, radius, offset = Math.PI / 2) {
     super(game, 0, 0, "assets", "hud/targeting-arrow");

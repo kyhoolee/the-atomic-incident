@@ -1,15 +1,33 @@
 import Light from "./light.js";
 
+/**
+ * Class Plugin của phaser-game quản lý light 
+ */
 export default class LightingPlugin extends Phaser.Plugin {
   constructor(game, pluginManager) {
     super(game, pluginManager);
     this.game = game;
+    // Do quản lý light nên cần nắm được camera của game 
+    /**
+    * A Camera is your view into the game world. 
+    * It has a position and size and renders only those objects within its field of view.
+    * The game automatically creates a single Stage sized camera on boot. 
+    * Move the camera around the world with Phaser.Camera.x/y
+    */
     this.camera = this.game.camera;
     this.lights = [];
     this._debugEnabled = false;
     this._pluginManager = pluginManager;
   }
 
+  /**
+   * Khởi tạo Lighting 
+   * Với thông tin option mặc định bao gồm 
+   * walls - danh sách tường trên bản đồ 
+   * parent = game.world 
+   * debugEnabled = false
+   * shadowOpacity = 1 
+   */
   init({ walls = [], parent = this.game.world, debugEnabled = false, shadowOpacity = 1 } = {}) {
     this.parent = parent;
     this.shadowOpacity = shadowOpacity;
@@ -17,7 +35,34 @@ export default class LightingPlugin extends Phaser.Plugin {
     this._walls = walls;
 
     // Create a bitmap and image that can be used for dynamic lighting
+    /**
+      Reference to the Phaser.GameObjectFactory.
+      add: Phaser.GameObjectFactory;
+      
+      * Create a BitmapData object.
+      * 
+      * A BitmapData object can be manipulated and drawn to like a traditional Canvas object 
+      * and used to texture Sprites.
+      * 
+      * @param width The width of the BitmapData in pixels. - Default: 256
+      * @param height The height of the BitmapData in pixels. - Default: 256
+      * @param key Asset key for the BitmapData when stored in the Cache (see addToCache parameter). - Default: ''
+      * @param addToCache Should this BitmapData be added to the Game.Cache? If so you can retrieve it with Cache.getBitmapData(key)
+      * @return The newly created BitmapData object.
+        
+       bitmapData(width?: number, height?: number, key?: string, addToCache?: boolean): Phaser.BitmapData;
+    */
     const bitmap = this.game.add.bitmapData(this.game.width, this.game.height);
+    /**
+    * Fills the BitmapData with the given color.
+    * 
+    * @param r The red color value, between 0 and 0xFF (255).
+    * @param g The green color value, between 0 and 0xFF (255).
+    * @param b The blue color value, between 0 and 0xFF (255).
+    * @param a The alpha color value, between 0 and 1. - Default: 1
+    * @return This BitmapData object for method chaining.  
+    fill(r: number, g: number, b: number, a?: number): Phaser.BitmapData;
+     */
     bitmap.fill(0, 0, 0, this.shadowOpacity);
     const image = bitmap.addToWorld(0, 0);
     image.blendMode = Phaser.blendModes.MULTIPLY;
@@ -242,7 +287,7 @@ export default class LightingPlugin extends Phaser.Plugin {
 
   _sortPoints(points, target) {
     // TODO: make more efficient by sorting and caching the angle calculations
-    points.sort(function(p1, p2) {
+    points.sort(function (p1, p2) {
       const angle1 = Phaser.Point.angle(target, p1);
       const angle2 = Phaser.Point.angle(target, p2);
       return angle1 - angle2;

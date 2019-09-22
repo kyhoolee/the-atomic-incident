@@ -1,12 +1,22 @@
+// Đã nắm tương đối - là bộ nhận các input của Phaser-game - biến đổi ra thành thông tin tác động vào game 
+// Cụ thể biến đối thành các thay đổi về gia tốc, vận tốc lên đối tượng player và yêu cầu attack
 import MovementController from "./movement-controller";
 import Controller from "../../helpers/controller.js";
-import { checkSatOverlapWithGroup } from "../../helpers/sprite-utilities.js";
+// Không thấy sử dụng 
+//import { checkSatOverlapWithGroup } from "../../helpers/sprite-utilities.js";
+// Chưa nắm 
 import EnergyPickup from "../pickups/energy-pickup";
+// Chưa nắm 
 import PlayerLight from "./player-light";
+// Chưa nắm 
 import Compass from "./compass";
+// Đã hiểu tương đối - là các trạng thái menu 
 import { MENU_STATE_NAMES } from "../../menu";
+// Đã hiểu tương đối - là các thông tin reference lưu trong gameStore 
 import { gameStore } from "../../game-data/observable-stores";
+// Đã hiểu tương đối - có 7 loại vũ khí - với các logic bắn đạn - va chạm với enemy và wall khác nhau - và chỉ số khác nhau 
 import WeaponManager from "../weapons/weapon-manager";
+// Đã hiểu tương đối - là hiệu ứng animation cho lúc di chuyển 
 import SmokeTrail from "./smoke-trail";
 import { registerGameOver } from "../../analytics";
 
@@ -117,7 +127,12 @@ export default class Player extends Phaser.Sprite {
       context: this
     });
 
-    // Lighting for player
+    /**
+     * Lighting for player
+     * Do feature của game là có phần quản lý light - xuất phát từ player
+     * Light phủ 1 vùng sáng với bán kính minRadius 
+     * Nếu gặp tường chắn thì light bị chặn lại - Nếu không thì sẽ mở rộng ra 
+     */
     this._playerLight = new PlayerLight(game, this, {
       startRadius: 330,
       minRadius: 175,

@@ -1,3 +1,7 @@
+/**
+ * Class rút gọn các khai báo của thư viện SAT
+ * Vector, box, circle, polygon 
+ */
 import SAT from "sat";
 
 export function vec(x, y) {

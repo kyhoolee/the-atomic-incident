@@ -2,6 +2,11 @@ import Body from "./body";
 import Collider from "./collider";
 import BODY_TYPES from "./body-types";
 
+/**
+ * Class Factory đi kèm với với World 
+ * Xử lý đưa ra các body và staticBody
+ * Đưa gameObject, logic collider, overlap vào World  
+ */
 export default class Factory {
   constructor(world) {
     this.game = world.game;
@@ -34,6 +39,12 @@ export default class Factory {
     return body;
   }
 
+  /**
+   * Đưa collider vào world 
+   * @param {đối tượng 1} object1 
+   * @param {đối tượng 2} object2 
+   * @param {các loại option xử lý} options 
+   */
   collider(object1, object2, options) {
     const collider = new Collider(this.world, object1, object2, options);
     this.world.addCollider(collider);
