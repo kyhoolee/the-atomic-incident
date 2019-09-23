@@ -11,6 +11,11 @@ let instances = 0;
  * The light's bitmap is centered over this.position. The light's shape can either be a circle or a
  * polygon. When the light is first initialized, a bitmap is created that matches the light's shape.
  * For performance reasons, that bitmap will not change size unless explicitly told to do so.
+ * 
+ * Đây là class mô tả một tia sáng - tia sáng này sẽ đống góp vào vùng sáng hiển thị trong World 
+ * Vùng sáng sẽ được vẽ lên giới hạn của tia sáng 
+ * Tia sáng lấy tâm ở this.position 
+ * Tia sán có shape là Circle hoặc polygon 
  *
  * @class Light
  */
@@ -26,18 +31,30 @@ export default class Light {
    * @memberof Light
    */
   constructor(game, parent, position, shape, baseColor, pulseColor) {
+    // Game 
     this.game = game;
+    // Phaser group-parent
     this.parent = parent;
+    // Loại hình dạng 
     this.shape = shape;
     /** @member {Phaser.Point} position - center of the Light's shape and bitmap */
+    // Vị trí 
     this.position = position.clone();
+    // Màu sắc cơ bản 
     this.baseColor = baseColor instanceof Color ? baseColor : new Color(baseColor);
+    // Pulse color ???
     this.pulseColor = pulseColor instanceof Color ? pulseColor : new Color(pulseColor);
+    // Có bật hay không ???
     this.enabled = true;
+    // Có cần vẽ lại không 
     this.needsRedraw = true;
+    // id riêng 
     this.id = instances++;
+    // chế độ debug 
     this._isDebug = false;
+    // góc xoay 
     this.rotation = 0;
+    // các tường giao với tia sáng 
     this.intersectingWalls = this._recalculateWalls();
     this.shape = null;
     this._lastRotation = this.rotation;
@@ -121,6 +138,9 @@ export default class Light {
     }
   }
 
+  /**
+   * Cập nhật lại light theo position + rotation mới 
+   */
   update() {
     if (!this.enabled) return; // Exit if light is disabled
 
@@ -267,6 +287,10 @@ export default class Light {
     }
   }
 
+  /**
+   * 
+   * @param {*} points 
+   */
   redraw(points) {
     // Light is expecting these points to be in world coordinates, since its own position is in
     // world coordinates
@@ -299,6 +323,9 @@ export default class Light {
     this.game.globals.plugins.lighting.removeLight(this);
   }
 
+  /**
+   * 
+   */
   _redrawLight() {
     // Draw the circular gradient for the light. This is the light without factoring in shadows.
     this._bitmap.cls();
@@ -334,6 +361,10 @@ export default class Light {
     }
   }
 
+  /**
+   * 
+   * @param {*} points 
+   */
   _redrawShadow(points) {
     // Destination in blend mode - the next thing drawn acts as a mask for the existing canvas
     // content
@@ -371,7 +402,11 @@ export default class Light {
     }
   }
 
+  /**
+   * Tính ra các bức tường chắn sáng 
+   */
   _recalculateWalls() {
+    // Lấy ra danh sách wall 
     const walls = this.game.globals.plugins.lighting.getWalls();
 
     // Determine which walls have normals that face away from the light - these are the walls that

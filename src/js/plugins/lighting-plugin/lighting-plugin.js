@@ -74,32 +74,55 @@ export default class LightingPlugin extends Phaser.Plugin {
     if (debugEnabled) this.enableDebug();
   }
 
+  /**
+   * 
+   * @param  {...any} lightParameters 
+   */
   addLight(...lightParameters) {
+    //constructor(game, parent, position, shape, baseColor, pulseColor)
     const light = new Light(this.game, this.parent, ...lightParameters);
     this.lights.push(light);
     if (this._debugEnabled) light.enableDebug();
     return light;
   }
 
+  /**
+   * 
+   * @param {*} light 
+   */
   addExistingLight(light) {
     this.lights.push(light);
     if (this._debugEnabled) light.enableDebug();
     return light;
   }
 
+  /**
+   * 
+   * @param {*} light 
+   */
   removeLight(light) {
     const i = this.lights.indexOf(light);
     if (i !== -1) this.lights.splice(i, 1);
   }
 
+  /**
+   * 
+   */
   getWalls() {
     return this._walls;
   }
 
+  /**
+   * 
+   * @param {*} opacity 
+   */
   setOpacity(opacity) {
     this.shadowOpacity = opacity;
   }
 
+  /**
+   * 
+   */
   enableDebug() {
     this._debugEnabled = true;
 
@@ -122,12 +145,19 @@ export default class LightingPlugin extends Phaser.Plugin {
     }
   }
 
+  /**
+   * 
+   */
   disableDebug() {
     this._debugEnabled = false;
     if (this._debugImage) this._debugImage.visible = false;
     this.lights.forEach(light => light.disableDebug());
   }
 
+  /**
+   * 
+   * @param {*} worldPoint 
+   */
   isPointInShadow(worldPoint) {
     const localPoint = this._convertWorldPointToLocal(worldPoint);
     localPoint.x = Math.round(localPoint.x);
@@ -154,10 +184,23 @@ export default class LightingPlugin extends Phaser.Plugin {
     Phaser.Plugin.prototype.destroy.apply(this, arguments);
   }
 
+  /**
+   * 
+   */
   update() {
     // Clear and draw a shadow everywhere
     this._bitmap.blendSourceOver();
     this._bitmap.cls(); // Clear so shadow opacity works again
+    /**
+    * Fills the BitmapData with the given color.
+    * 
+    * @param r The red color value, between 0 and 0xFF (255).
+    * @param g The green color value, between 0 and 0xFF (255).
+    * @param b The blue color value, between 0 and 0xFF (255).
+    * @param a The alpha color value, between 0 and 1. - Default: 1
+    * @return This BitmapData object for method chaining.  
+    fill(r: number, g: number, b: number, a?: number): Phaser.BitmapData;
+    */
     this._bitmap.fill(0, 0, 0, this.shadowOpacity);
 
     if (this._debugEnabled) this._debugBitmap.clear();
@@ -165,8 +208,10 @@ export default class LightingPlugin extends Phaser.Plugin {
     for (let i = 0; i < this.lights.length; i++) {
       const light = this.lights[i];
       if (!light.enabled) continue;
+
       light.update();
       if (light.needsRedraw) {
+
         const points = this._castLight(light);
         light.redraw(points); // World coordinates
       }
@@ -205,6 +250,10 @@ export default class LightingPlugin extends Phaser.Plugin {
     this._bitmap.update();
   }
 
+  /**
+   * 
+   * @param {*} light 
+   */
   _castLight(light) {
     const points = [];
     const backWalls = light.intersectingWalls;
@@ -294,7 +343,13 @@ export default class LightingPlugin extends Phaser.Plugin {
     });
   }
 
-  // Find the closest wall that faces away from the light
+
+  /**
+   * // Find the closest wall that faces away from the light
+   * @param {*} ray 
+   * @param {*} walls 
+   * @param {*} lightId 
+   */
   _getWallIntersection(ray, walls, lightId) {
     let distanceToWall = Number.POSITIVE_INFINITY;
     let closestIntersection = null;
@@ -320,7 +375,12 @@ export default class LightingPlugin extends Phaser.Plugin {
     return closestIntersection;
   }
 
-  // Return the closest wall that this ray intersects.
+
+  /**
+   * // Return the closest wall that this ray intersects.
+   * @param {*} ray 
+   * @param {*} walls 
+   */
   _getClosestWall(ray, walls) {
     let distanceToWall = Number.POSITIVE_INFINITY;
     let closestWall = null;
