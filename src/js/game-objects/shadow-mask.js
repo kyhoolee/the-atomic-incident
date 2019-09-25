@@ -12,7 +12,7 @@ function ShadowMask(game, opacity, tilemap, parentGroup) {
     // Create a bitmap and image that can be used for dynamic lighting
     var bitmap = game.add.bitmapData(game.width, game.height);
     bitmap.fill(0, 0, 0, opacity);
-    var image = bitmap.addToWorld(game.width / 2, game.height / 2, 0.5, 0.5, 1, 
+    var image = bitmap.addToWorld(game.width / 2, game.height / 2, 0.5, 0.5, 1,
         1);
     image.blendMode = Phaser.blendModes.MULTIPLY;
     image.fixedToCamera = true;
@@ -23,7 +23,7 @@ function ShadowMask(game, opacity, tilemap, parentGroup) {
     this._lightWalls = calculateHullsFromTiles(tilemap);
 
     this._rayBitmap = this.game.add.bitmapData(game.width, game.height);
-    this._rayBitmapImage = this._rayBitmap.addToWorld(game.width / 2, 
+    this._rayBitmapImage = this._rayBitmap.addToWorld(game.width / 2,
         game.height / 2, 0.5, 0.5, 1, 1);
     parentGroup.addChild(this._rayBitmapImage);
     this._rayBitmapImage.fixedToCamera = true;
@@ -123,12 +123,12 @@ ShadowMask.prototype.update = function () {
 
         // Check for an intersection at each angle, and +/- 0.001
         // Add the intersection to the points array.
-        points.push(checkRayIntersection(this, startAngle-0.001));
+        points.push(checkRayIntersection(this, startAngle - 0.001));
         points.push(checkRayIntersection(this, startAngle));
-        points.push(checkRayIntersection(this, startAngle+0.001));
-        points.push(checkRayIntersection(this, endAngle-0.001));
+        points.push(checkRayIntersection(this, startAngle + 0.001));
+        points.push(checkRayIntersection(this, endAngle - 0.001));
         points.push(checkRayIntersection(this, endAngle));
-        points.push(checkRayIntersection(this, endAngle+0.001));
+        points.push(checkRayIntersection(this, endAngle + 0.001));
     }
 
     this._sortPoints(points, globals.player.position);
@@ -205,7 +205,7 @@ ShadowMask.prototype.update = function () {
         yOffset = 0;
     }
     this._bitmap.ctx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
-    for(var i = 0; i < points.length; i++) {
+    for (var i = 0; i < points.length; i++) {
         this._bitmap.ctx.lineTo(points[i].x - xOffset, points[i].y - yOffset);
     }
     this._bitmap.ctx.closePath();
@@ -217,10 +217,10 @@ ShadowMask.prototype.update = function () {
     this._rayBitmap.context.strokeStyle = 'rgb(255, 0, 0)';
     this._rayBitmap.context.fillStyle = 'rgb(255, 0, 0)';
     this._rayBitmap.context.moveTo(points[0].x - xOffset, points[0].y - yOffset);
-    for(var k = 0; k < points.length; k++) {
+    for (var k = 0; k < points.length; k++) {
         this._rayBitmap.context.moveTo(globals.player.x - xOffset, globals.player.y - yOffset);
         this._rayBitmap.context.lineTo(points[k].x - xOffset, points[k].y - yOffset);
-        this._rayBitmap.context.fillRect(points[k].x - xOffset -2,
+        this._rayBitmap.context.fillRect(points[k].x - xOffset - 2,
             points[k].y - yOffset - 2, 4, 4);
     }
     this._rayBitmap.context.stroke();
@@ -234,7 +234,7 @@ ShadowMask.prototype.update = function () {
 // Dynamic lighting/Raycasting.
 // Thanks, yafd!
 // http://gamemechanicexplorer.com/#raycasting-2
-ShadowMask.prototype.getWallIntersection = function(ray, walls) {
+ShadowMask.prototype.getWallIntersection = function (ray, walls) {
     var distanceToWall = Number.POSITIVE_INFINITY;
     var closestIntersection = null;
 
@@ -254,7 +254,7 @@ ShadowMask.prototype.getWallIntersection = function(ray, walls) {
 };
 
 // Return the closest wall that this ray intersects.
-ShadowMask.prototype.getClosestWall = function(ray, walls) {
+ShadowMask.prototype.getClosestWall = function (ray, walls) {
     var distanceToWall = Number.POSITIVE_INFINITY;
     var closestWall = null;
 
@@ -273,7 +273,7 @@ ShadowMask.prototype.getClosestWall = function(ray, walls) {
     return closestWall;
 };
 
-ShadowMask.prototype.toggleRays = function() {
+ShadowMask.prototype.toggleRays = function () {
     // Toggle the visibility of the rays when the pointer is clicked
     if (this._rayBitmapImage.visible) {
         this._rayBitmapImage.visible = false;

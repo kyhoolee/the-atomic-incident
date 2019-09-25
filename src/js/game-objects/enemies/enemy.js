@@ -17,7 +17,17 @@ const ANIM = {
   DEATH: "DEATH"
 };
 
+/**
+ * Đối tượng enemy - mở rộng từ Phaser.Sprite 
+ */
 export default class Enemy extends Phaser.Sprite {
+  /**
+   * Khởi tạo 1 enemy theo type + position 
+   * @param {*} game 
+   * @param {*} type 
+   * @param {*} position 
+   * @param {*} enemyGroup 
+   */
   static MakeEnemyType(game, type, position, enemyGroup) {
     const info = ENEMY_INFO[type] || {};
     const key = info.key || "";
@@ -32,9 +42,18 @@ export default class Enemy extends Phaser.Sprite {
     return enemy;
   }
 
+  /**
+   * Khởi tạo vị trí sinh enemy - vị trí này sẽ tạo ra animation sau đó rồi mới sinh ra enemy
+   * @param {*} game 
+   * @param {*} type 
+   * @param {*} position 
+   * @param {*} enemyGroup 
+   * @param {*} spawnTime 
+   */
   static SpawnWithIndicator(game, type, position, enemyGroup, spawnTime = 3000) {
     const indicator = new EnemySpawnIndicator(game, position.x, position.y, spawnTime);
     enemyGroup.add(indicator);
+    // Khi kết thúc thì thực hiện đúng một lần việc sinh enemy theo đúng type + position 
     indicator.onFinished.addOnce(() => Enemy.MakeEnemyType(game, type, position, enemyGroup));
   }
 
