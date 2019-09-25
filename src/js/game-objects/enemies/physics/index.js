@@ -26,12 +26,19 @@
 
 import physics from "./enemies.json";
 
+/**
+ * Thông tin về polygon chứa hình dạng vật lý của các loại enemy 
+ */
 const formattedPhysics = {};
 
 for (const enemyName in physics) {
+  // chiều rộng của enemy 
   const width = parseInt(physics[enemyName].width, 10);
+  // chiều cao của enemy 
   const height = parseInt(physics[enemyName].height, 10);
+  // vỏ bọc của enemy 
   const hull = physics[enemyName].shapes[0].hull;
+  // convert về tỉ lệ 0-1 
   formattedPhysics[enemyName] = hull.map(p => [p[0] / width, p[1] / height]);
 }
 
