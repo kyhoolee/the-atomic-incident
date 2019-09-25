@@ -1,3 +1,6 @@
+/**
+ * Đối tượng 1 vị trí báo hiệu sinh enemy 
+ */
 export default class EnemySpawnIndicator extends Phaser.Sprite {
   constructor(game, x, y, duration) {
     super(game, x, y, "assets", "hud/enemy-spawn-indicator");
@@ -8,6 +11,10 @@ export default class EnemySpawnIndicator extends Phaser.Sprite {
     this.onFinished = new Phaser.Signal();
 
     // Fancy scale in -> blink -> fire "finished" signal -> fancy scale out
+    /**
+     * Thực hiện môt tween animation sau đó rồi kết thúc việc báo hiệu 
+     * Và start tiếp việc sinh enemy 
+     */
     this.scaleToTween(1, () => {
       const blinksPerMs = 1 / 1200;
       const blinks = duration * blinksPerMs;

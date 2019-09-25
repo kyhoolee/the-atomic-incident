@@ -232,6 +232,9 @@ export default class EnemySpawner {
     resetCompositions();
   }
 
+  /**
+   * 
+   */
   _getDifficultyFraction() {
     return Phaser.Math.mapLinear(this._numWavesSpawned, 0, 20, 0, 1);
   }
@@ -331,15 +334,20 @@ export default class EnemySpawner {
 
   /**
    * Schedule the next wave
+   * Lập lịch cho đợt công kích tiếp theo 
    */
   _scheduleNextWave() {
+    // Tăng số lượng đợt công kích đã tạo ra 
     this._numWavesSpawned++;
+    // Thông báo event đợt công kích diễn ra 
     this.onWaveSpawn.dispatch(this._numWavesSpawned);
 
+    // Nếu đợt công kích lần này là bội số của 4 thì đây là một đợt công kích động biệt 
     if (this._numWavesSpawned % 4 === 0) {
       // If the next wave difficulty is an multiple of 5, it is a special wave.
       this._timer.add(this._waveInterval, this._spawnSpecialWave, this);
     } else {
+      // Hoặc không thì là một đợt công kích bình thường 
       // Otherwise, it is a normal wave.
       this._timer.add(this._waveInterval, this._spawnWave, this);
     }
@@ -350,35 +358,47 @@ export default class EnemySpawner {
 
   /**
    * Generate and spawn a wave of enemies, and increment the difficulty.
+   * Sinh ra một đợt công kích và tăng độ khó 
    */
   _spawnWave() {
+    // Số lượng đợt công kích con = số lượng đợt công kích con bình thường 
     const numWavelets = Math.floor(this._numNormalWavelets.getValue());
+    // Số lượng đợt công kích con còn lại 
     this._remainingWavelets = numWavelets;
 
+    // Với mỗi đợt công kích con 
     for (let i = 0; i < numWavelets; i++) {
+      // Chọn ra ngẫu nhiên theo trọng số 1 loại enemy 
       const comp = weightedPick(COMPOSITIONS);
+      // Lấy ra số lượng enemy 
       const num = Math.floor(comp.number.getValue());
+      // Tạo ra 1 array toàn enemy cùng loại trên 
       const enemies = Array(num).fill(comp.type);
+      // Lập lịch sinh ra loại đợt công kích con với array enemy trên 
       this._timer.add(this._waveletInterval * i, () => this._spawnWavelet(enemies));
     }
-
+    // Tăng số lượng đợt công kích con lên 
     this._numNormalWavelets.incrementValue();
   }
 
   /**
    * Generate and spawn a special 'boss' wave, and increment the difficulty.
+   * Sinh ra 1 đợt công kích đặc biêt - sinh ra các con boss - các loại enemy đặc biệt cần có súng xuyên giáp 
    */
   _spawnSpecialWave() {
+    // Số lượng đợt công kích con chính là số lượng enemy của đợt công kích 
     const numWavelets = Math.floor(this._numSpecialWavelets.getValue());
     this._remainingWavelets = numWavelets;
 
     for (let i = 0; i < numWavelets; i++) {
+      // Mỗi lần sinh ra enemy thì giảm số lượng remainingWavelets
       this._timer.add(this._waveletInterval * i, () => {
         spawnBattalionWave(this._player, this._mapManager, this._enemies);
         this._remainingWavelets--;
       });
     }
 
+    // Sau mỗi lần sinh 1 đợt công kích con thì tăng giá trị lên - nghĩa là càng về sau thì số lượng enemy tăng lên 
     this._numSpecialWavelets.incrementValue();
   }
 

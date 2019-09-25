@@ -21,6 +21,14 @@ const tank3Pos = new Phaser.Point();
 const virus1Pos = new Phaser.Point();
 const virus2Pos = new Phaser.Point();
 
+/**
+ * Sinh ra một đội hình enemy có vị trí tương ứng theo player 
+ * Do suy nghĩ rằng đội hình enemy này gây khó khăn cho user nhiều hơn việc sinh ngẫu nhiên vị trí thông thường 
+ * @param {player} player 
+ * @param {bản đồ} mapManager 
+ * @param {group của enemy} enemyGroup 
+ * @param {số lần thử sinh enemy} maxAttempts 
+ */
 export default function spawnBattalionWave(player, mapManager, enemyGroup, maxAttempts = 50) {
   const game = player.game;
   const dist = player.getLightRadius() - 25;
