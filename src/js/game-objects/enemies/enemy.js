@@ -74,18 +74,23 @@ export default class Enemy extends Phaser.Sprite {
       numMoveFrames = 16
     } = {}
   ) {
+    // Khởi tạo thông tin Sprite của enemy - với hình ảnh tương ứng 
     super(game, position.x, position.y, key, animated ? `${frame}/move_00` : frame);
     this.anchor.set(0.5);
 
     this._components = [];
     this.type = type;
     this.baseScale = 1;
+
+    // Khởi tạo logic của từng loại enemy 
     switch (this.type) {
+      // 1. Loại truy đuổi 
       case ENEMY_TYPES.FOLLOWING: {
         this._hitLogic = new EnemyHitLogic(this);
         this._components.push(new TargetingComp(this, speed, visionRadius));
         break;
       }
+      // 2. Loại chạy nhanh 
       case ENEMY_TYPES.DASHING: {
         this._hitLogic = new EnemyHitLogic(this);
         const targeting = new TargetingComp(this, speed, visionRadius);
@@ -93,6 +98,7 @@ export default class Enemy extends Phaser.Sprite {
         this._components.push(targeting, dash);
         break;
       }
+      // 3. Loại bắn đạn 
       case ENEMY_TYPES.PROJECTILE: {
         this._hitLogic = new EnemyHitLogic(this);
         const targeting = new TargetingComp(this, speed, visionRadius);
@@ -100,6 +106,7 @@ export default class Enemy extends Phaser.Sprite {
         this._components.push(targeting, projectile);
         break;
       }
+      // 4. Loại chia nhỏ 
       case ENEMY_TYPES.DIVIDING: {
         this._hitLogic = new EnemyHitLogic(this);
         const targeting = new TargetingComp(this, speed * 3 / 4, visionRadius);
@@ -108,6 +115,7 @@ export default class Enemy extends Phaser.Sprite {
         this.baseScale = 1.25;
         break;
       }
+      // 5. Loại đã bị chia nhỏ 
       case ENEMY_TYPES.DIVIDING_SMALL: {
         this._hitLogic = new EnemyHitLogic(this);
         const targeting = new TargetingComp(this, speed, visionRadius);
@@ -115,6 +123,7 @@ export default class Enemy extends Phaser.Sprite {
         this.baseScale = 0.75;
         break;
       }
+      // 6. Loại có giáp 
       case ENEMY_TYPES.TANK: {
         this._hitLogic = new WeakSpotHitLogic(this);
         const targeting = new TargetingComp(this, speed, visionRadius);
@@ -122,6 +131,7 @@ export default class Enemy extends Phaser.Sprite {
         this._components.push(targeting, dash);
         break;
       }
+      // 7. Mặc định - thực ra là invalid - vẫn gán 1 logic mặc định 
       default: {
         logger.log("Invalid enemy type specified, using default Targeting Component!");
         this._hitLogic = new EnemyHitLogic(this);
@@ -130,15 +140,27 @@ export default class Enemy extends Phaser.Sprite {
       }
     }
 
+    /**
+    * The scale of this DisplayObject. A scale of 1:1 represents the DisplayObject
+    * at its default size. A value of 0.5 would scale this DisplayObject by half, and so on.
+    * 
+    * The value of this property does not reflect any scaling happening further up the display list.
+    * To obtain that value please see the `worldScale` property.
+    * 
+    * scale: Phaser.Point;
+    */
     this.scale.setTo(this.baseScale);
 
     // Add this enemy to the Enemies group.
+    // Đưa enemy vào group 
     enemyGroup.addEnemy(this);
     this.enemyGroup = enemyGroup;
 
+    // tạo color cho enemy 
     const colorObj = color instanceof Color ? color : new Color(color);
     this.tint = colorObj.getRgbColorInt();
 
+    // Tạo thanh thông báo health cho enemy 
     const cx = 0;
     const cy = this.height / 2 + 4;
     const fg = game.globals.groups.foreground; // Temp fix: move health above the shadows
@@ -146,16 +168,22 @@ export default class Enemy extends Phaser.Sprite {
     this._healthBar.initHealth(health);
 
     // Animations
+    // Xử lý các loại animation tương ứng 
     const genFrameNames = Phaser.Animation.generateFrameNames;
     const moveFrames = animated
       ? genFrameNames(`${frame}/move_`, 0, numMoveFrames - 1, "", 2)
       : [frame];
+
     const hitFrames = animated ? genFrameNames(`${frame}/hit_`, 0, 15, "", 2) : [frame];
+
     const deathFrames = animated ? genFrameNames(`${frame}/death_`, 0, 15, "", 2) : [frame];
+
     this.animations.add(ANIM.MOVE, moveFrames, 24, true);
+
     this.animations.add(ANIM.HIT, hitFrames, 64, false).onComplete.add(() => {
       this.animations.play(ANIM.MOVE);
     }, this);
+
     this.animations.add(ANIM.DEATH, deathFrames, 64, false).onComplete.add(() => {
       this.destroy();
     });
@@ -163,6 +191,7 @@ export default class Enemy extends Phaser.Sprite {
     // Sound fx
     this._hitSound = this.game.globals.soundManager.add("fx/squish-impact-faster", 5);
     this._deathSound = this.game.globals.soundManager.add("fx/squish");
+
 
     const points = collisionPoints.map(p => ({
       x: (p[0] - 0.5) * this.width,
