@@ -233,14 +233,26 @@ export default class EnemySpawner {
   }
 
   /**
-   * 
+   * Độ khó tăng dần lên theo tỉ lệ số đợt công kích được tạo 
    */
   _getDifficultyFraction() {
+    /**
+    * Linear mapping from range <a1, a2> to range <b1, b2>
+    * 
+    * @param x The value to map
+    * @param a1 First endpoint of the range <a1, a2>
+    * @param a2 Final endpoint of the range <a1, a2>
+    * @param b1 First endpoint of the range <b1, b2>
+    * @param b2 Final endpoint of the range  <b1, b2>
+    * 
+    static mapLinear(x: number, a1: number, a2: number, b1: number, b2: number): number;
+    */
     return Phaser.Math.mapLinear(this._numWavesSpawned, 0, 20, 0, 1);
   }
 
   /**
-   * Find a position for the next wavelet, choose the next enemy type,
+   * Find a position for the next wavelet, 
+   * choose the next enemy type,
    * spawn a wavelet, and schedule the next wavelet.
    *
    * @param {*} enemyOrder
@@ -296,6 +308,7 @@ export default class EnemySpawner {
       }
 
       if (enemyType in ENEMY_TYPES) {
+        // Generate enemy with type and position 
         this.spawnWithDelay(i * spawnDelay, enemyType, enemyPosition);
       } else {
         logger.warn(`Unknown enemy type: ${enemyType}`);
@@ -307,8 +320,8 @@ export default class EnemySpawner {
   }
 
   /**
-   * Spawn an enemy
-   *
+   * Spawn an enemy By create a Spawn-Indicator
+   * Spawn-Indicator will play an animation then spawn enemy 
    * @param {number} delay          - Time to wait before spawning the enemy (in ms).
    * @param {ENEMY_TYPES} enemyType - Enemy type to spawn.
    * @param {Phaser.Point} position - World location to spawn the enemy at.
