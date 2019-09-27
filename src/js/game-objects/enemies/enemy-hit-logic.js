@@ -1,9 +1,9 @@
 import { COLLISION_SURFACE } from "../weapons/projectile/collision-logic";
 
 /**
- * Base class for handling the logic for enemies getting hit by an attack. This allows us to have
- * special logic for projectiles against different enemy types. The default logic is that a
- * projectile hits an enemy and does damage.
+ * Base class for handling the logic for enemies getting hit by an attack. 
+ * This allows us to have special logic for projectiles against different enemy types. 
+ * The default logic is that a projectile hits an enemy and does damage.
  *
  * @class EnemyHitLogic
  */
@@ -13,7 +13,7 @@ export class EnemyHitLogic {
   }
 
   /** Noop in base class, but can be used by derived classes */
-  update() {}
+  update() { }
 
   /**
    * Returns what type of surface the projectile hit

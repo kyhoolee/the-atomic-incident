@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 export default class DeathParticles extends Phaser.Particles.Arcade.Emitter {
   constructor(game, parent) {
     super(game, 0, 0, 1000);

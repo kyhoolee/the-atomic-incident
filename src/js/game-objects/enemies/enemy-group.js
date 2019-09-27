@@ -1,6 +1,9 @@
 import Enemy from "./enemy";
 import DeathParticles from "./components/death-particles";
 
+/**
+ * 
+ */
 export default class EnemyGroup extends Phaser.Group {
   /**
    * Phaser Group for storing Enemy instances, and emitters for when enemies spawn and die.

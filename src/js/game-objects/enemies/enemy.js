@@ -189,10 +189,12 @@ export default class Enemy extends Phaser.Sprite {
     });
 
     // Sound fx
+    // sound lúc trúng đạn 
     this._hitSound = this.game.globals.soundManager.add("fx/squish-impact-faster", 5);
+    // sound lúc ngỏm 
     this._deathSound = this.game.globals.soundManager.add("fx/squish");
 
-
+    // hình dạng polygon để check collision 
     const points = collisionPoints.map(p => ({
       x: (p[0] - 0.5) * this.width,
       y: (p[1] - 0.5) * this.height
@@ -200,6 +202,7 @@ export default class Enemy extends Phaser.Sprite {
     game.physics.sat.add.gameObject(this).setPolygon(points);
 
     // Spawn animation
+    // Animation lúc sinh ra 
     this.scale.setTo(this.baseScale * 0.5, this.baseScale * 0.5);
     this.animations.play(ANIM.MOVE);
     this.game.make
@@ -212,13 +215,25 @@ export default class Enemy extends Phaser.Sprite {
     this.isDead = false;
   }
 
+  /**
+   * Logic khi trúng đạn - tùy loại đạn, loại enemy sẽ có logic khi trúng đạn khác nhau 
+   * @param {*} projectile 
+   * @param {*} damage 
+   */
   attemptHit(projectile, damage) {
+    // Gọi logic-hit tùy biến thực hiện 
     return this._hitLogic.attemptHit(damage, projectile);
   }
 
+  /**
+   * Logic khi nhận trừ damage 
+   * @param {*} damage 
+   * @param {*} projectile 
+   */
   takeDamage(damage, projectile) {
     if (this.isDead) return false;
 
+    // Cập nhật lại thanh health-bar
     const newHealth = this._healthBar.incrementHealth(-damage);
     // this._flashFilter.startFlash();
     // TODO(rex): Play the flash animation frames.
