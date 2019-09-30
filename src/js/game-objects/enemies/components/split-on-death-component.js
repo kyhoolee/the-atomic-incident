@@ -1,6 +1,10 @@
 import Enemy from "../enemy";
 import { ENEMY_TYPES } from "../enemy-info";
 
+/**
+ * Logic dành cho loại enemy dividing - khi die thì sẽ chia tách ra nhiều enemy loại dividing_small
+ * Chỉ khai báo các logic - logic sẽ được thực hiện trong event die của enemy - ko call trực tiếp ở đay 
+ */
 export default class SplitOnDeathComponent {
   constructor(parent, targetingComponent) {
     this.game = parent.game;

@@ -78,6 +78,9 @@ export default class Enemy extends Phaser.Sprite {
     super(game, position.x, position.y, key, animated ? `${frame}/move_00` : frame);
     this.anchor.set(0.5);
 
+    // Danh sách các logic của 1 enemy - thường gồm 2 loại logic chính - 
+    // 1. Logic EnemyHitLogic 
+    // 2. Logic TargetingComp
     this._components = [];
     this.type = type;
     this.baseScale = 1;
@@ -254,15 +257,22 @@ export default class Enemy extends Phaser.Sprite {
   }
 
   update() {
-    if (this.isDead) return;
+    if (this.isDead) 
+      return;
+    // Hit logic nằm riêng so với các logic khác
     this._hitLogic.update();
-    for (const component of this._components) component.update();
+    // Khi một enemy được update nghĩa là gọi tất cả các logic components được cập nhật 
+    // Logic trúng đạn, logic tấn công, logic truy đuổi, ...
+    for (const component of this._components) 
+      component.update();
+    // Gọi super.update - cập nhật các logic về sprite 
     super.update();
   }
 
   die() {
     this.isDead = true;
     // If this is an Amoeba, with a SplitOnDeath component, activate the splitOnDeath method.
+    // Gọi riêng logic của SplitOnDeathComponent thực hiện logic 
     if (this.type === ENEMY_TYPES.DIVIDING) {
       const splitComponent = this._components.find(c => {
         return c instanceof SplitOnDeathComponent;
