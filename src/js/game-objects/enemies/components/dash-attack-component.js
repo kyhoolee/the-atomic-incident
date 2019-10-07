@@ -6,6 +6,12 @@ const STATES = {
   CHARGING_UP: "CHARGING_UP"
 };
 
+/**
+ * Component để điều khiển enemy vừa truy đuổi - lúc đến đủ gần user thì sẽ dashing
+ * Tức là tấn công kiểu lao vào 
+ * Sử dụng tween để chuyển trạng thái following - dashing - charging_up 
+ * Sử dụng hàm update để điều khiển vận tốc - cách di chuyển của enemy 
+ */
 export default class DashAttackComponent {
   constructor(
     parent,

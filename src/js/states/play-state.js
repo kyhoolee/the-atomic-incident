@@ -105,7 +105,7 @@ export default class PlayState extends Phaser.State {
 
     // Trong midground thì có các pickups-item của game 
     groups.pickups = game.add.group(groups.midground, "pickups");
-    // Trong midground thì có enimies 
+    // Trong midground thì có enimies - Đây là group của các enemy - tất cả enemy đều được gán vào parent-group là enemy-group
     groups.enemies = new EnemyGroup(game, groups.midground);
     // Trong midground có các các group của các object không cần check colliding 
     groups.nonCollidingGroup = game.add.group(groups.midground, "non-colliding");

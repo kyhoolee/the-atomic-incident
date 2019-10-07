@@ -2,7 +2,7 @@ import Enemy from "./enemy";
 import DeathParticles from "./components/death-particles";
 
 /**
- * 
+ * Group là parent của toàn bộ enemy 
  */
 export default class EnemyGroup extends Phaser.Group {
   /**
@@ -14,9 +14,12 @@ export default class EnemyGroup extends Phaser.Group {
   constructor(game, parent = undefined) {
     super(game, parent, "EnemyGroup");
 
+    // Loại hiệu ứng khi enemy bị die 
     this.deathParticles = new DeathParticles(game, this);
 
+    // Signal của enemy được add 
     this.onEnemyAdded = new Phaser.Signal();
+    // Signal của enemy bị kill 
     this.onEnemyKilled = new Phaser.Signal();
   }
 
@@ -62,7 +65,9 @@ export default class EnemyGroup extends Phaser.Group {
 
   killAll() {
     for (let i = this.children.length - 1; i >= 0; i--) {
-      if (this.children[i] !== this.deathParticles) this.children[i].destroy();
+      // Kill tất cả các child của group - ngoại trừ deathParticles 
+      if (this.children[i] !== this.deathParticles) 
+        this.children[i].destroy();
     }
   }
 

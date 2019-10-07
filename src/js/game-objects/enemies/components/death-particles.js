@@ -1,5 +1,11 @@
 /**
+ * Là class tạo ra hiệu ứng death-particle khi 1 enemy nào đó die 
  * 
+ * Emitter is a lightweight particle emitter that uses Arcade Physics.
+ * It can be used for one-time explosions or for continuous effects like rain and fire.
+ * All it really does is launch Particle objects out at set intervals, 
+ * and fixes their positions and velocities accordingly.
+ * class Emitter extends Phaser.Group 
  */
 export default class DeathParticles extends Phaser.Particles.Arcade.Emitter {
   constructor(game, parent) {
@@ -16,11 +22,24 @@ export default class DeathParticles extends Phaser.Particles.Arcade.Emitter {
     this.setAlpha(1, 0, this.lifespan, Phaser.Easing.Linear.None);
   }
 
+  /**
+   * 
+   * @param {*} x 
+   * @param {*} y 
+   */
   setEmitPosition(x, y) {
     this.emitX = x;
     this.emitY = y;
   }
 
+  /**
+   * 
+   * @param {*} numberToEmit 
+   * @param {*} angle 
+   * @param {*} angleSpread 
+   * @param {*} speed 
+   * @param {*} speedSpread 
+   */
   emitInWedge(numberToEmit, angle, angleSpread, speed, speedSpread) {
     const minSpeed = speed - speedSpread / 2;
     const maxSpeed = speed + speedSpread / 2;
@@ -42,6 +61,12 @@ export default class DeathParticles extends Phaser.Particles.Arcade.Emitter {
     }
   }
 
+  /**
+   * 
+   * @param {*} angle 
+   * @param {*} speed 
+   * @param {*} scale 
+   */
   emitInDirection(angle, speed = 400, scale) {
     // Get the particle that is about to be used by emitParticle
     const particle = this.getFirstExists(false);

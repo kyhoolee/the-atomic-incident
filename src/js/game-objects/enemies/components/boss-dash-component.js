@@ -5,6 +5,16 @@ const STATES = {
   CHARGING_UP: "CHARGING_UP"
 };
 
+/**
+ * Là component để điều khiển di chuyển của boss 
+ * 4 loại trang thái 
+ * - following - khi trong bóng tối thì đơn giản theo dấú player 
+ * - khi ra ngoài sáng thì chuyển đối 
+ * + Dashing là lao vào player 
+ * + Stunned là mất sức - giảm kích cỡ + năng lượng 
+ * + Charging_up là hồi sức dần dần 
+ * 
+ */
 export default class BossDashComponent {
   constructor(
     parent,
