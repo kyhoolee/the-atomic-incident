@@ -42,7 +42,7 @@
     "mini-css-extract-plugin": "^0.3.0",
     "mobx": "^4.1.1",
     "mobx-preact": "^2.0.0",
-    "node-sass": "^4.5.3",
+    "sass": "^1.32.13",
     "phaser-ce": "^2.10.0",
     "phaser-tiled-hull": "^1.0.2",
     "point-in-polygon": "^1.0.1",
@@ -51,15 +51,16 @@
     "preact-svg-loader": "^0.2.0",
     "prettier": "^1.6.1",
     "raw-loader": "^0.5.1",
-    "sass-loader": "^6.0.6",
+    "sass-loader": "^10.4.1",
     "sat": "^0.7.0",
     "store": "^2.0.12",
     "style-loader": "^0.20.3",
     "typeface-montserrat": "0.0.54",
+    "typings": "^2.1.1",
     "typescript": "^2.5.2",
-    "webpack": "^4.4.1",
-    "webpack-cli": "^2.0.13",
-    "webpack-dev-server": "^3.1.1"
+    "webpack": "^4.47.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.3"
   },
   "prettier": {
     "printWidth": 100

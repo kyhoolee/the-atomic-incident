@@ -17,7 +17,14 @@ module.exports = function(env, argv) {
     },
     module: {
       rules: [
-        { test: /\.(js|jsx)$/, use: "babel-loader", exclude: /node_modules/ },
+        {
+          test: /\.(js|jsx)$/,
+          use: "babel-loader",
+          include: [
+            path.resolve(__dirname, "src"),
+            path.resolve(__dirname, "node_modules/phaser2-navmesh/dist")
+          ]
+        },
 
         {
           test: /\.(scss|sass)$/,
@@ -25,7 +32,10 @@ module.exports = function(env, argv) {
             // MiniCssExtractPlugin.loader,
             { loader: "style-loader", options: { sourceMap: true } },
             { loader: "css-loader", options: { sourceMap: true } },
-            { loader: "sass-loader", options: { sourceMap: true } }
+            {
+              loader: "sass-loader",
+              options: { sourceMap: true, implementation: require("sass") }
+            }
           ]
         },
 

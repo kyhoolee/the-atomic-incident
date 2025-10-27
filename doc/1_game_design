@@ -1,0 +1,97 @@
+# The Atomic Incident — Game Design BRD (Phaser 3 Rebuild)
+
+## 1. Product Vision
+- Mang đến một top-down shooter nhịp độ cao, nơi sát thủ điều khiển “atomic craft” sống sót qua các vòng hợp đồng ngày càng khốc liệt bằng cách làm chủ ánh sáng, vị trí và kho vũ khí.
+- Giữ nguyên bản sắc ánh sáng động: chỉ một vùng nhỏ quanh người chơi được chiếu sáng, phần còn lại chìm trong bóng đêm, buộc phải đọc map và đoán địch qua âm thanh/radar.
+- Thời lượng mỗi run ngắn (5–15 phút), dễ replay; hỗ trợ cả keyboard/mouse lẫn mobile dual-stick với feedback rõ ràng cho mọi hành động.
+
+## 2. Core Player Loop
+1. Bắt đầu hợp đồng trong tilemap neon với vũ khí khởi điểm và bán kính ánh sáng hạn chế.
+2. Hoàn thành mục tiêu sát thủ (ám sát, phá hủy, đánh cắp, đào tẩu...) trong khi xử lý địch xuất hiện từ các điểm mù.
+3. Thu thập energy để hồi ánh sáng, vũ khí mới để thay đổi build, duy trì combo bằng cách tránh nhận sát thương.
+4. Kết thúc vòng chơi bằng cách hoàn thành hợp đồng hoặc tử nạn; lên leaderboard, mở khóa agent/weapon mới.
+
+## 3. Gameplay Mechanics
+### 3.1 Player Kit & Assassin Roster
+- **Movement cơ bản:** WASD/joystick trái tạo lực accelerate + drag; camera follow. Aim bằng chuột/joystick phải.
+- **Dash Ability:** Spacebar / button phải kích hoạt dash invulnerable theo hướng aim (`CooldownAbility` 2s/400ms). Mọi agent đều có dash cơ bản.
+- **Light / Health:** `PlayerLight` duy trì bán kính (min 175px, max 330px). Mất máu = thu hẹp radius, mất tầm nhìn. EnergyPickup phục hồi.
+- **Weapons:** `WeaponManager` nạp sẵn bộ weapon archetype (scattershot, rapid fire, piercing, bouncing, homing, rocket, flamethrower); mỗi loại kế thừa `BaseWeapon` (ammo, cooldown, reload) và spawn projectile riêng.
+- **Damage & Death:** Bị trúng đạn → giảm light, trigger `PostProcessor` (vignette, RGB split), `AudioProcessor` low-pass, camera shake. Radius = min → death → `gameStore` chuyển state Game Over.
+
+#### Assassin Class (mở khóa dần)
+| Class | Kỹ năng Passive/Active | Thời lượng | Lưu ý triển khai |
+|-------|------------------------|------------|-------------------|
+| Operative | Dash + slide ngắn (giảm hitbox khi lướt) | Tức thời | Slide reuse MovementController.
+| Ronin | Double dash, parry (reflect bullet nếu timing chuẩn) | Parry 0.5s window | Parry kích hoạt `Projectile` change target.
+| Parkourist | Lộn/trườn qua chướng ngại thấp, nhảy tường | Action 0.6s | Cần animation riêng, check collision.
+| Ghost | Tàng hình 2s (địch không detect), speed +20% | 10s cooldown | Tàng hình disable radar enemy.
+| Oracle | "No blind spot" tạm thời: mini-map 360°, reveal enemy trong bóng | 5s | Implement overlay radius reveal.
+| Spectre (endgame) | Kết hợp tàng hình + dash vô hình xuyên enemy, silent kill | 8s, cooldown dài | Yêu cầu xử lý stealth kill animation.
+
+### 3.2 Combat & Projectiles
+- **Projectile archetype** tương tự bản cũ: slug, scatter, piercing, bouncing, homing, rocket, flame.
+- **Collision**: tích hợp `SAT.js` hoặc Matter (nếu hỗ trợ polygon). Explosion = `Explosion` sprite + radial damage.
+- **Audio/FX**: `SoundEffectManager` pooling, `PostProcessor` pipeline, `SmokeTrail` emitter.
+
+### 3.3 Enemies
+- Core enemy là `Enemy` + component pattern (Targeting, DashAttack, ProjectileAttack, SplitOnDeath, BossDash).
+- Loại enemy mở rộng cho sát thủ scenario:
+  - **Sentry Drone** (patrol ánh sáng mạnh, phá tàng hình).
+  - **Shield Guard** (tấm chắn 180°, cần flank từ bóng).
+  - **Sniper** (lock vị trí, bắn xuyên cover nếu bị lộ).
+  - **Juggernaut** (tốc độ chậm, phá ánh sáng bằng EMP).
+
+### 3.4 Spawning & Difficulty
+- `EnemySpawner` điều chỉnh wave theo objective: stealth → spawn chậm, loud → spawn theo nhịp ồn ào.
+- `DifficultyModifier` nhân stats (speed, fire rate) khi hợp đồng kéo dài hoặc alert level cao.
+- Thêm mechanic cảnh báo: nếu kích hoạt alarm → spawn reinforcement (battalion formation).
+
+### 3.5 Pickups & Economy
+- Weapon pickup: random ngoài weapon đang dùng; note synergy (operatives có passive buff với weapon cụ thể).
+- Energy pickup: rơi từ kẻ địch, tự động hút trong phạm vi.
+- Tài nguyên bổ sung: gadget slot (smoke grenade, EMP) cho agent nâng cao.
+
+## 4. User Experience & HUD
+- HUD tương tự base nhưng mở rộng:
+  - Icon agent với cooldown kỹ năng đặc biệt.
+  - Alert meter (stealth vs loud) nếu contract yêu cầu.
+  - Objective tracker (list contract subtask).
+- Menu Preact: Start, Contract Selection, Unlock tree (agent/weapon), Options, Game Over.
+
+## 5. Systems Architecture (Phaser 3 Targets)
+*(Giữ bảng mapping legacy ↔ Phaser 3 như bản khung ban đầu; bổ sung note Dual Input cho mobile và gadget system).* 
+
+## 6. Content & Assets
+- Map: `neon-district` (MVP), roadmap `harbor`, `high-rise`, `safehouse`.
+- Spritesheet update: thêm animation agent (slide, roll, stealth shimmer), enemy mới.
+- Audio: track techno, SFX brutal + stealth cues.
+
+## 7. Analytics & Telemetry
+- Ghi nhận contract success/fail, agent được chọn, thời gian tàng hình, detection events.
+- Heatmap điểm chết, weapon usage.
+
+## 8. Technical Risks & Spikes
+1. Lighting & stealth overlap (render + detect).
+2. Dual input (mobile joystick + PC) – mapping và UX.
+3. AI navmesh cho parkour (lộ trình, tường).
+4. Performance multi-light + fog-of-war.
+
+## 9. Implementation Roadmap
+1. **Foundation:** Phaser 3 project, input abstraction cho PC/mobile.
+2. **Lighting prototype:** occlusion + stealth reveal.
+3. **Player combat core:** MovementController, WeaponManager, base Operative.
+4. **Enemy AI:** Targeting + navmesh, sentinel drone, guard.
+5. **Objective system:** Contract flow, alert meter, reinforcement spawn.
+6. **HUD & meta:** HUD nâng cao, menu unlock, analytics.
+7. **Agent expansion:** Parkourist, Ghost, Oracle.
+8. **Polish & QA:** Performance, multi-device test, content balance.
+
+## 10. Open Questions
+- Agent unlock progression theo score hay nhiệm vụ?
+- Có PvE co-op hoặc leaderboard event?
+- Mobile monetization (premium vs free)?
+- Asset refresh toàn bộ hay reuse với recolor?
+
+---
+_Last updated: $(date -u +"%Y-%m-%d") UTC_

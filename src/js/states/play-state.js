@@ -32,6 +32,7 @@ import { registerGameStart } from "../analytics";
 import ImageBar from "../game-objects/hud/image-bar";
 import WaveHud from "../game-objects/hud/wave";
 import HudMessageDisplay from "../game-objects/hud/hud-message-display";
+import StaticDebugger from "../debug/static-debugger";
 
 
 /*
@@ -102,6 +103,8 @@ export default class PlayState extends Phaser.State {
     groups.midground = game.add.group(groups.game, "midground");
     // 3. Foreground 
     groups.foreground = game.add.group(groups.game, "foreground");
+    // 4. Debug overlay (optional drawing surface)
+    groups.debug = game.add.group(groups.foreground, "debug-overlay");
 
     // Trong midground thì có các pickups-item của game 
     groups.pickups = game.add.group(groups.midground, "pickups");
@@ -170,6 +173,17 @@ export default class PlayState extends Phaser.State {
     // Manager.1. Map-manager - quản lý bản đồ trong game 
     const mapManager = new MapManager(game, mapName, groups.background, groups.foreground);
     globals.mapManager = mapManager;
+
+    // Debug helpers for static layers
+    this.staticDebugger = new StaticDebugger(game, mapManager, groups);
+    globals.debugTools = globals.debugTools || {};
+    globals.debugTools.staticDebugger = this.staticDebugger;
+    if (typeof window !== "undefined") {
+      window.__TAI_DEBUG__ = window.__TAI_DEBUG__ || {};
+      window.__TAI_DEBUG__.staticDebugger = this.staticDebugger;
+    }
+    this.staticDebuggerToggleKey = this.input.keyboard.addKey(Phaser.KeyCode.U);
+    this.staticDebuggerToggleKey.onDown.add(() => this.staticDebugger.toggle());
 
     // Lighting plugin - needs to be set up after level manager
     // Vì lightning-plugin dùng để phủ 1 lớp overlay lên trên game thể hiện sáng tối 
@@ -386,6 +400,18 @@ export default class PlayState extends Phaser.State {
   }
 
   shutdown() {
+    if (this.staticDebuggerToggleKey) {
+      this.staticDebuggerToggleKey.onDown.removeAll();
+      this.staticDebuggerToggleKey.reset();
+      this.staticDebuggerToggleKey = null;
+    }
+    if (this.staticDebugger) {
+      this.staticDebugger.destroy();
+      this.staticDebugger = null;
+    }
+    if (this.game.globals && this.game.globals.debugTools) {
+      delete this.game.globals.debugTools.staticDebugger;
+    }
     this.enemySpawner.destroy();
     this.storeUnsubscribe();
     // Destroy all plugins (MH: should we be doing this or more selectively removing plugins?)

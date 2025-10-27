@@ -482,14 +482,16 @@ export default class World {
           let extendedTileBodyX = tileBodyX;
           let extendedTileBodyWidth = tileBodyWidth;
           for (let x = tile.x + 1; x <= tile.x + spriteWidthInTiles; x++) {
-            if (allTiles[tile.y][x] && allTiles[tile.y][x].collides) {
+            const row = allTiles[tile.y];
+            if (row && row[x] && row[x].collides) {
               extendedTileBodyWidth += tile.width;
             } else {
               break;
             }
           }
           for (let x = tile.x - 1; x >= tile.x - spriteWidthInTiles; x--) {
-            if (allTiles[tile.y][x] && allTiles[tile.y][x].collides) {
+            const row = allTiles[tile.y];
+            if (row && row[x] && row[x].collides) {
               extendedTileBodyX -= tile.width;
               extendedTileBodyWidth += tile.width;
             } else {
@@ -514,14 +516,16 @@ export default class World {
           let extendedTileBodyY = tileBodyY;
           let extendedTileBodyHeight = tileBodyHeight;
           for (let y = tile.y + 1; y <= tile.y + spriteHeightInTiles; y++) {
-            if (allTiles[y][tile.x] && allTiles[y][tile.x].collides) {
+            const row = allTiles[y];
+            if (row && row[tile.x] && row[tile.x].collides) {
               extendedTileBodyHeight += tile.height;
             } else {
               break;
             }
           }
           for (let y = tile.y - 1; y >= tile.y - spriteHeightInTiles; y--) {
-            if (allTiles[y][tile.x] && allTiles[y][tile.x].collides) {
+            const row = allTiles[y];
+            if (row && row[tile.x] && row[tile.x].collides) {
               extendedTileBodyY -= tile.height;
               extendedTileBodyHeight += tile.height;
             } else {

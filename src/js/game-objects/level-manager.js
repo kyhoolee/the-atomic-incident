@@ -1,5 +1,5 @@
 import phaserTiledHull from "phaser-tiled-hull/src/library"; // Allows us to babelify ourselves
-import NavMeshPlugin from "phaser2-navmesh/src";
+import NavMeshPlugin from "phaser2-navmesh/dist/phaser2-navmesh-plugin";
 
 /**
  * A class parsing a map and exposing a navmesh, tilemap, wall layer and array of walls for the rest
@@ -35,8 +35,10 @@ export default class MapManager {
     const wallTileset = tilemap.addTilesetImage("tiles", "tiles");
 
     // Create the background and wall layers
-    tilemap.createLayer("bg", game.width, game.height, bgGroup);
-    const wallLayer = tilemap.createLayer("walls", game.width, game.height, fgGroup);
+    const layerWidth = tilemap.widthInPixels;
+    const layerHeight = tilemap.heightInPixels;
+    tilemap.createLayer("bg", layerWidth, layerHeight, bgGroup);
+    const wallLayer = tilemap.createLayer("walls", layerWidth, layerHeight, fgGroup);
 
     // Set up collisions in wall layer
     tilemap.setCollisionBetween(
