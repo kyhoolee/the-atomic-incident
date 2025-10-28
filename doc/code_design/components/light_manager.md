@@ -34,7 +34,7 @@ interface LightProfile {
   - `ObjectiveEvent.POWER_NODE_DESTROYED` → toggle static light.
   - `AlertEvent.LEVEL_CHANGE` → adjust shadow opacity (higher alert = brighter due to alarm lights?).
 
-## API
+## APIhttps://docs.google.com/spreadsheets/d/1PS4PKmE2pfFgQP_hNLhI4OaWahx2aPIUp-Z_MixKj1w/edit?gid=1310218157#gid=1310218157
 ```
 class LightManager {
   init(config: LightingConfig, profileId: string)

@@ -91,3 +91,43 @@ const Effects = {
 ## Performance
 - Use map keyed by entity id -> effect list.
 - For large number of entities, update at lower frequency (e.g., tick per 50ms timeslice) to avoid per-frame heavy.
+
+## Extended Details
+### Effect Context & Resistance
+- `EffectContext` ghi lại `sourceId`, `ownerType`, `abilityId`, `projectileId`, giúp analytics và combo logic.
+- Entity có thể định nghĩa `getEffectResistance(tag: string): number` trả về multiplier 0..1 (0 = miễn nhiễm).
+  - Ví dụ Juggernaut: `resist.fire = 0.5`, `resist.emp = 0` (miễn nhiễm EMP).
+  - Khi apply effect: `duration *= resistance`, `magnitude *= resistance`; nếu 0 -> skip apply.
+- Cho phép define immunity list: `entity.hasEffectImmunity(effectId)`.
+
+### Stack Hooks & Refresh Rule
+- `StatusEffect` optional `onStack(entity, stacks, context)` để xử lý khi stack tăng (play FX, update HUD).
+- `refreshOnApply = false` cho effect như bleed (không reset khi reapply).
+- Giới hạn `maxStacks`; log warning nếu vượt để tránh exploit.
+
+### Cleanse/Purge API
+```ts
+statusEffectSystem.cleanse(entity, eff => eff.type === 'debuff')
+statusEffectSystem.purge(entity, ['fire', 'poison']) // remove effect có tag tương ứng
+```
+- Một số effect gắn tag `persistent` -> không remove bằng cleanse thường.
+
+### Event Broadcasting
+- `StatusEvent.APPLIED` `{ entityId, effectId, stacks }`.
+- `StatusEvent.EXPIRED` `{ entityId, effectId }`.
+- `StatusEvent.STACK_CHANGED` `{ entityId, effectId, stacks }`.
+- HUD subscribe để hiện icon/buff list; throttle sự kiện để tránh spam (đặc biệt burn tick).
+
+### Performance Considerations
+- Tick scheduling: effect có `tickInterval` > 0 có thể đưa vào scheduler riêng (update mỗi interval) thay vì mỗi frame.
+- Giới hạn max effect trên entity (ví dụ 8). Nếu vượt, có thể bỏ effect lâu nhất (LRU) hoặc từ chối apply mới.
+- Sử dụng object pool cho `ActiveEffect` để hạn chế GC khi add/remove liên tục.
+
+### Testing Matrix
+| Scenario | Expectation |
+|----------|-------------|
+| Apply Burn 4 lần | Stack cap = 3, damage = base * 3 |
+| Cleanse Debuff | Remove burn/slow, giữ shield |
+| Enemy immune EMP | Không bị disable, log event "immune" |
+| Stealth active | AlertSystem bỏ qua player 2s, Lighting revert đúng |
+| Taunt | Enemy retarget player, hết thời gian -> quay lại logic cũ |
