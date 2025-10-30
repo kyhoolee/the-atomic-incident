@@ -28,3 +28,7 @@ src/
 ```
 
 The code currently focuses on architecture scaffolding and interfaces. Functional gameplay should be implemented following the documentation in the `doc/` directory.
+
+## Dev Utilities
+- Press `I` at the menu to open the Input Debug Scene (visualizes MOVE/AIM/FIRE mappings).
+- Press `T` at the menu to open the TouchPad Debug Scene (virtual dual joystick demo).

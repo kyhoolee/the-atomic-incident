@@ -1,6 +1,13 @@
 import Phaser from 'phaser';
 
-import { ContractSceneKey, MenuSceneKey } from './sceneKeys';
+import {
+  ContractSceneKey,
+  MenuSceneKey,
+  InputDebugSceneKey,
+  InputDebugSceneV2Key,
+  InputDebugSceneV3Key,
+  TouchPadDebugSceneKey
+} from './sceneKeys';
 import { MenuView } from '@ui/menu/MenuView';
 import { MenuSelection } from '@core/state/menuState';
 
@@ -29,6 +36,23 @@ export class MenuScene extends Phaser.Scene {
       onOptions: () => this.showOptions(),
       onAgents: () => this.showAgents(),
       onArsenal: () => this.showArsenal()
+    });
+
+    this.input.keyboard?.on('keydown-I', () => {
+      console.log('[MenuScene] Switch to InputDebugScene');
+      this.scene.start(InputDebugSceneKey);
+    });
+    this.input.keyboard?.on('keydown-O', () => {
+      console.log('[MenuScene] Switch to InputDebugSceneV2');
+      this.scene.start(InputDebugSceneV2Key);
+    });
+    this.input.keyboard?.on('keydown-P', () => {
+      console.log('[MenuScene] Switch to InputDebugSceneV3');
+      this.scene.start(InputDebugSceneV3Key);
+    });
+    this.input.keyboard?.on('keydown-T', () => {
+      console.log('[MenuScene] Switch to TouchPadDebugScene');
+      this.scene.start(TouchPadDebugSceneKey);
     });
   }
 

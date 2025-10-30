@@ -8,6 +8,8 @@ import { StatusEffectSystem } from '@systems/status/StatusEffectSystem';
 import { EnemySpawner } from '@systems/spawn/EnemySpawner';
 import { PlayerAgent } from '@gameplay/player/PlayerAgent';
 import { MenuSelection } from '@core/state/menuState';
+import { InputAdapter } from '@core/input/InputAdapter';
+import { defaultActionConfigs, INPUT_ACTIONS } from '@core/input/defaultMappings';
 
 export class ContractScene extends Phaser.Scene {
   private lightingSystem!: LightingSystem;
@@ -16,6 +18,7 @@ export class ContractScene extends Phaser.Scene {
   private statusSystem!: StatusEffectSystem;
   private enemySpawner!: EnemySpawner;
   private playerAgent!: PlayerAgent;
+  private inputAdapter = new InputAdapter();
 
   private contractConfig?: MenuSelection;
 
@@ -31,10 +34,13 @@ export class ContractScene extends Phaser.Scene {
     console.log('[ContractScene] create()', this.contractConfig);
     this.initSystems();
     this.createWorld();
+    this.setupInput();
     this.createPlayer();
     this.createHUD();
 
     this.enemySpawner.scheduleInitialWave();
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.inputAdapter.destroy());
   }
 
   private initSystems(): void {
@@ -66,12 +72,33 @@ export class ContractScene extends Phaser.Scene {
     // TODO: instantiate HUD layer according to design document
   }
 
+  private setupInput(): void {
+    console.log('[ContractScene] setupInput');
+    this.inputAdapter.init(this);
+    for (const [action, config] of Object.entries(defaultActionConfigs)) {
+      this.inputAdapter.registerAction(action, config);
+    }
+
+    this.inputAdapter.on(INPUT_ACTIONS.MOVE, (state) => {
+      if (state.type === 'analog' && state.magnitude > 0) {
+        // console.log('[Input] MOVE', state.raw.x, state.raw.y);
+      }
+    });
+
+    this.inputAdapter.on(INPUT_ACTIONS.FIRE, (state) => {
+      if (state.type === 'digital' && state.justPressed) {
+        console.log('[Input] FIRE just pressed');
+      }
+    });
+  }
+
   update(time: number, delta: number): void {
     // console.log('[ContractScene] update', time, delta); // comment to avoid spam
 
     const dt = delta;
 
     this.physicsAdapter.update(dt);
+    this.inputAdapter.update(dt);
     this.playerAgent.update(dt);
     this.enemySpawner.update(dt);
     this.lightingSystem.update(dt);
@@ -80,5 +107,9 @@ export class ContractScene extends Phaser.Scene {
 
   private endContract(victory: boolean): void {
     this.scene.start(GameOverSceneKey, { victory });
+  }
+
+  shutdown(): void {
+    this.inputAdapter.destroy();
   }
 }

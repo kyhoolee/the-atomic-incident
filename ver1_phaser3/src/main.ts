@@ -6,6 +6,10 @@ import { LoadScene } from '@scenes/LoadScene';
 import { MenuScene } from '@scenes/MenuScene';
 import { ContractScene } from '@scenes/ContractScene';
 import { GameOverScene } from '@scenes/GameOverScene';
+import { InputDebugScene } from '@scenes/InputDebugScene';
+import { InputDebugSceneV2 } from '@scenes/InputDebugSceneV2';
+import { InputDebugSceneV3 } from '@scenes/InputDebugSceneV3';
+import { TouchPadDebugScene } from '@scenes/TouchPadDebugScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -22,7 +26,21 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false
     }
   },
-  scene: [BootScene, LoadScene, MenuScene, ContractScene, GameOverScene]
+  input: {
+    activePointers: 3,
+    topOnly: false
+  },
+  scene: [
+    BootScene,
+    LoadScene,
+    MenuScene,
+    ContractScene,
+    GameOverScene,
+    InputDebugScene,
+    InputDebugSceneV2,
+    InputDebugSceneV3,
+    TouchPadDebugScene
+  ]
 };
 
 export class TheAtomicIncidentGame extends Phaser.Game {
